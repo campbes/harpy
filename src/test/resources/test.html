@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Harpy test</title>
+        <script src="../../main/js/harpy.js"></script>
+        <script src="googleHar.js"></script>
+        <style type="text/css">
+
+            div {
+                float: left;
+                height: 20px;
+            }
+            .blocked {
+                background: #900;
+            }
+            .send {
+                background: #090;
+            }
+            .wait {
+                background: #099;
+            }
+            .receive {
+                background: #009;
+            }
+
+        </style>
+    </head>
+    <body>
+        <script>
+            var viewer = new Harpy.Viewer(har);
+            viewer.draw();
+        </script>
+    </body>
+</html>
