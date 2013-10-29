@@ -2,33 +2,18 @@
 <html>
     <head>
         <title>Harpy test</title>
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+        <script src="../../../exos-1.0.2.min.js"></script>
         <script src="../../main/js/harpy.js"></script>
         <script src="googleHar.js"></script>
-        <style type="text/css">
-
-            div {
-                float: left;
-                height: 20px;
-            }
-            .blocked {
-                background: #900;
-            }
-            .send {
-                background: #090;
-            }
-            .wait {
-                background: #099;
-            }
-            .receive {
-                background: #009;
-            }
-
-        </style>
+        <link rel="stylesheet" type="text/css" href="../../main/css/harpy.css"/>
     </head>
     <body>
+    <div id="har"></div>
         <script>
             var viewer = new Harpy.Viewer(har);
-            viewer.draw();
+            viewer.draw("har");
+            window.onresize = viewer.resize;
         </script>
     </body>
 </html>
