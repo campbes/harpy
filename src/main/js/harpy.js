@@ -41,20 +41,20 @@ var Harpy = function() {
             output += "<tr>";
             output += "<td>"+entry.request.method+"</td>"
             output += "<td class='url'>"+url.substr(0,30)+"</td>";
-            output += "<td>"+entry.response.status+" "+entry.response.statusText+"</td>";
+            output += "<td title='"+entry.response.status+" "+entry.response.statusText+"'>"+entry.response.status+"</td>";
             output += "<td>"+Math.round(entry.response.bodySize/1024)+" KB</td>";
             output += "<td>"+buildTimeline(entry,startTime)+"</td>"
             output += "</tr>";
         }
         output += "<tr>";
-        output += "<td>"+har.log.entries.length+" Requests</td>";
+        output += "<td>"+har.log.entries.length+" Req</td>";
         output += "<td></td><td></td><td>"+size+" KB</td>";
         output += "<td class='total'>"+time/1000+"s</td>";
         output += "</tr></table>";
 
         this.resize = function() {
             var timeline = $('#'+el+' th.timeline');
-            var unit = timeline.width()/time;
+            var unit = (timeline.width() - 50)/time;
             var times = $('#'+el+' div');
             times.each(function() {
                 if(this.hasAttribute('data-start')) {
