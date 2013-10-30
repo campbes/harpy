@@ -81,7 +81,7 @@ var Harpy = function() {
                     stats.time[x] += Math.round(entry.timings[x])/1000;
                 }
             }
-            stats.type[type] += Math.round(entry.response.bodySize)/1024;
+            stats.type[type] += Math.round(entry.response.bodySize/1024);
 
             size += Math.round(entry.response.bodySize/1024);
             if(i>0) {
