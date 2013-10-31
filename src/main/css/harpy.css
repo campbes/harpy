@@ -1,13 +1,40 @@
 table.harpy {
-    width: 100%;
+    width: 95%;
     border-collapse: collapse;
 }
 table.harpy div {
     float: left;
     height: 20px;
 }
+table.harpy div.loadMarker {
+    border-left: 1px dashed #F63;
+    border-right: 1px dashed #5cb85c;
+    position: absolute;
+}
+table.harpy tr.total {
+    background: #EEE;
+    font-weight: bold;
+}
+table.harpy tr.html {
+    background: #FFE;
+}
+table.harpy tr.css {
+    background: #EEF;
+}
+table.harpy tr.js {
+    background: #FEF;
+}
+table.harpy tr.text {
+    background: #FEE;
+}
+table.harpy tr.cache {
+    color: #BBB;
+}
 table.harpy th {
     width: 20px;
+}
+table.harpy th.timeline{
+    width: auto;
 }
 table.harpy td:nth-child(even) {
     background: #EEE;
@@ -20,29 +47,30 @@ table.harpy td {
 table.harpy td.url {
     width: 100px;
 }
-table.harpy th.timeline{
-    width: auto;
-}
-table.harpy td.total {
-    text-align: right;
-    font-weight: bold;
+table.harpy tr.total span {
+    float: right;
 }
 table.harpy div.blocked {
     background: #d9534f;
 }
 table.harpy div.dns {
-    background : #F63 !important;
+    background : #F63;
 }
 table.harpy div.connect {
     background: #F96;
 }
 table.harpy div.send {
-    background: #FC6;
+    background: #9C9;
 }
 table.harpy div.wait {
-    background: #9C9;
+    background: #FC6;
 }
 table.harpy div.receive {
     background: #5cb85c;
     margin-right: 5px;
+}
+div.harpyChart {
+    width: 24%;
+    float: left;
+    height: 220px;
 }

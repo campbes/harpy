@@ -11,7 +11,47 @@ var Harpy = function() {
         str += "<div class='send' data-time='"+obj.timings.send+"'></div>";
         str += "<div class='wait' data-time='"+obj.timings.wait+"'></div>";
         str += "<div class='receive' data-time='"+obj.timings.receive+"'></div>";
-        str += "<div>"+(obj.timings.blocked+obj.timings.dns+obj.timings.connect+obj.timings.send+obj.timings.wait+obj.timings.receive)/1000+"s</div>";
+        str += "<div>"+format(obj.timings.blocked+obj.timings.dns+obj.timings.connect+obj.timings.send+obj.timings.wait+obj.timings.receive,'time')+"</div>";
+        return str;
+    }
+
+    function getMimetype(type) {
+        if(type.indexOf("image") !== -1) {
+            return "image";
+        } else if(type.indexOf("html") !== -1) {
+            return "html";
+        } else if(type.indexOf("javascript") !== -1) {
+            return "js";
+        } else if(type.indexOf("css") !== -1) {
+            return "css";
+        } else if(type.indexOf("text") !== -1) {
+            return "text";
+        }
+        return "other";
+    }
+
+    function format(val,type) {
+        switch(type) {
+            case "size" :
+                if(val > 1024) {
+                    return Math.round(val/1024)+ " KB";
+                }
+                return val+ " B";
+                break;
+            case "time" :
+                if(val > 1000) {
+                    return val/1000+ " s";
+                }
+                return val+ " ms";
+
+        }
+    }
+
+    function buildMarker(time) {
+        var str = "<div class='loadMarker' ";
+        str += "data-dom='"+(time.onContentLoad || time.onLoad)+"' "
+        str += "data-page='"+time.onLoad+"'"
+        str += "></div>";
         return str;
     }
 
@@ -21,53 +61,206 @@ var Harpy = function() {
 
         options = options || {};
 
-        var output = "<table class='harpy'>";
+        var output = "";
         har = JSON.parse(har);
 
-        var time = har.log.pages[0].pageTimings.onLoad;
+        var time = har.log.pages[0].pageTimings;
+        time.total = time.onLoad;
+
         var startTime = new Date(har.log.pages[0].startedDateTime);
+        var stats = {
+            time : {
+                blocked : 0,
+                dns : 0,
+                connect : 0,
+                send : 0,
+                wait : 0,
+                receive : 0
+            },
+            type : {
+                image : 0,
+                html : 0,
+                js : 0,
+                css : 0,
+                text : 0,
+                other : 0
+            },
+            uncached : {
+                image : 0,
+                html : 0,
+                js : 0,
+                css : 0,
+                text : 0,
+                other : 0
+            },
+            size : {
+                cache : 0,
+                download : 0
+            }
+        };
 
-        var size = 0;
-
-        output += "<tr><th></th><th></th><th class='status'></th><th class='size'></th><th class='timeline'></th></tr>"
+        output += "<thead><tr>";
+        output += "<th>Req.</th>";
+        output += "<th>Meth.</th>";
+        output += "<th>URL</th>";
+        output += "<th class='status'>Status</th>";
+        output += "<th>Type</th>";
+        output += "<th class='size'>Size</th>";
+        output += "<th class='timeline'></th></tr></thead><tbody>";
 
         for(var i=0; i<har.log.entries.length; i++) {
             var entry = har.log.entries[i];
             var url = entry.request.url;
-            size += Math.round(entry.response.bodySize/1024);
+            var type = getMimetype(entry.response.content.mimeType);
+
+            var endTime = new Date(entry.startedDateTime).getTime() + entry.time;
+            if(endTime > startTime.getTime() + time.total) {
+                console.log()
+                time.total = endTime - startTime;
+            }
+
+            for(var x in entry.timings) {
+                if(entry.timings.hasOwnProperty(x)) {
+                    if( entry.timings[x] > 0) {
+                        stats.time[x] += entry.timings[x];
+                    }
+                }
+            }
+
+            stats.type[type] += entry.response.bodySize;
+            stats.uncached[type] += entry.response.bodySize;
+            stats.size.download += entry.response.bodySize;
+
             if(i>0) {
                 url = url.replace(har.log.entries[0].request.url,"");
             }
-            output += "<tr>";
+            output += "<tr class='"+type+(entry.response.status === '(cache)' ? ' cache' : '')+"'>";
+            output += "<td>"+(i+1)+"</td>"
             output += "<td>"+entry.request.method+"</td>"
-            output += "<td class='url'>"+url.substr(0,30)+"</td>";
+            output += "<td title='"+url+"' class='url'>"+url.substr(0,30)+(url.length > 30 ? "..." : "")+"</td>";
             output += "<td title='"+entry.response.status+" "+entry.response.statusText+"'>"+entry.response.status+"</td>";
-            output += "<td>"+Math.round(entry.response.bodySize/1024)+" KB</td>";
-            output += "<td>"+buildTimeline(entry,startTime)+"</td>"
+            output += "<td title='"+entry.response.content.mimeType+"'>"+type+"</td>"
+            if(entry.cache.hasOwnProperty('afterRequest')) {
+                output += "<td>"+format(entry.response.content.size,'size')+"</td>";
+                stats.size.cache += entry.response.content.size;
+                stats.type[type] += entry.response.content.size;
+            } else {
+                output += "<td>"+format(entry.response.bodySize,'size')+"</td>";
+            }
+            output += "<td>";
+            if(i === 0) {
+                output += buildMarker(time);
+            }
+            output += buildTimeline(entry,startTime)+"</td>"
             output += "</tr>";
         }
-        output += "<tr>";
-        output += "<td>"+har.log.entries.length+" Req</td>";
-        output += "<td></td><td></td><td>"+size+" KB</td>";
-        output += "<td class='total'>"+time/1000+"s</td>";
-        output += "</tr></table>";
+        output += "<tr class='total'>";
+        output += "<td>"+har.log.entries.length+"</td>";
+        output += "<td></td><td></td><td></td><td></td><td>"+format((stats.size.download+stats.size.cache),'size')+"</td>";
+        output += "<td> ("+format(stats.size.cache,'size')+" from cache)<span title='DOM: "+format(time.onContentLoad || time.onLoad,'time')+", Page: "+format(time.onLoad,'time')+"'>"+format(time.total,'time')+"</span></td>";
+        output += "</tr></tbody>";
 
         this.resize = function() {
             var timeline = $('#'+el+' th.timeline');
-            var unit = (timeline.width() - 50)/time;
-            var times = $('#'+el+' div');
+            var unit = (timeline.width()-60)/time.total;
+            console.log(time.total);
+            var times = $('#'+el+' table.harpy div');
             times.each(function() {
+                if(this.className === 'loadMarker') {
+                    var left = 0;
+                    var width = 0;
+                    if(this.hasAttribute('data-dom')) {
+                        left = Number(this.getAttribute('data-dom'))*unit;
+                    }
+                    if(this.hasAttribute('data-page')) {
+                        width = Number(this.getAttribute('data-page'))*unit - left;
+                    }
+                    this.style.marginLeft = left + "px";
+                    this.style.width = width + "px";
+                    this.style.height = $('#'+el+' table.harpy>tbody').height() + "px";
+                }
                 if(this.hasAttribute('data-start')) {
                     this.style.marginLeft = Number(this.getAttribute('data-start'))*unit + "px";
                 }
-                this.style.width = Number(this.getAttribute('data-time'))*unit + "px";
+                if(this.hasAttribute('data-time')) {
+                    this.style.width = Number(this.getAttribute('data-time'))*unit + "px";
+                }
             });
         };
+
+        function drawCharts() {
+
+            var standardConfig = {
+                pieSliceTextStyle : {
+                    color : '#000'
+                },
+                chartArea : {
+                    top :30,left: 10,bottom: 30,right: 10,width:300
+                }
+            };
+
+            var chartConfigs = {
+                time : {
+                    colors : ['#d9534f','#F63','#F96','#9C9','#FC6','#5cb85c'],
+                    title : "Time"
+                },
+                type : {
+                    colors : ['#CCC','#FFB','#FBF','#BBF','#FBB'],
+                    title : "Content"
+                },
+                uncached : {
+                    colors : ['#CCC','#FFB','#FBF','#BBF','#FBB'],
+                    title : "Uncached content"
+                },
+                size : {
+                    colors : ['#5cb85c','#d9534f'],
+                    title : "Cache profile"
+                }
+            };
+
+            for(var x in stats) {
+                if(stats.hasOwnProperty(x)) {
+                    var stat = stats[x];
+                    var statData = [["",""]];
+                    for(var i in stat) {
+                        if(stat.hasOwnProperty(i)) {
+                            statData[statData.length] = [i,(stat[i] < 0 ? 0 : stat[i])]
+                        }
+                    }
+                }
+
+                for(var j in standardConfig) {
+                    if(standardConfig.hasOwnProperty(j)) {
+                        chartConfigs[x][j] = standardConfig[j];
+                    }
+                }
+
+                var chartEl = document.createElement("DIV");
+                chartEl.className = 'harpyChart';
+                document.getElementById(el).appendChild(chartEl);
+
+                var data = google.visualization.arrayToDataTable(statData);
+                var chart = new google.visualization.PieChart(chartEl);
+                chart.draw(data,chartConfigs[x]);
+            }
+        }
 
         this.draw = function(elID) {
             el = elID;
             this.el = el;
-            document.getElementById(el).innerHTML = output;
+
+            if(!google.visualization) {
+                google.load("visualization", "1", {packages:["corechart"]});
+                google.setOnLoadCallback(drawCharts);
+            } else {
+                drawCharts();
+            }
+
+            var table = document.createElement("TABLE");
+            table.className = "harpy";
+            table.innerHTML = output;
+            document.getElementById(el).appendChild(table);
+
             this.resize();
         }
     }
