@@ -101,9 +101,34 @@ var Harpy = function() {
             }
         };
 
+
+        function elStr(tag,content,attrs) {
+            var str = '<';
+            str += tag;
+            for (var i in attrs) {
+                if(attrs.hasOwnProperty(i)) {
+                    str += ' ';
+                    str += i;
+                    str += '="';
+                    str += attrs[i];
+                    str += '"';
+                }
+            }
+            str += '>';
+            if(content) {
+                str += content;
+            }
+            str += '</';
+            str += tag;
+            str += '>';
+
+            return str;
+        }
+
+
         output += "<thead><tr>";
-        output += "<th>Req.</th>";
-        output += "<th>Meth.</th>";
+        output += elStr("th","Req.");
+        output += elStr("th","Meth.");
         output += "<th>URL</th>";
         output += "<th>Status</th>";
         output += "<th>Type</th>";
@@ -139,20 +164,27 @@ var Harpy = function() {
                 url = url.replace(har.log.entries[0].request.url,"");
             }
             output += "<tr data-id='"+i+"' class='"+type+(entry.response.status === '(cache)' ? ' cache' : '')+"'>";
-            output += "<td>"+(i+1)+"</td>"
-            output += "<td>"+entry.request.method+"</td>"
-            output += "<td title='"+url+"' class='url'>"+url.substr(0,30)+(url.length > 30 ? "..." : "")+"</td>";
-            output += "<td title='"+entry.response.status+" "+entry.response.statusText+"'>"+entry.response.status+"</td>";
-            output += "<td title='"+entry.response.content.mimeType+"'>"+type+"</td>"
+            output += elStr("td",i+1);
+            output += elStr("td",entry.request.method);
+            output += elStr("td",url.substr(0,30)+(url.length > 30 ? "..." : ""),{
+                "class" : "url"
+            });
+            output += elStr("td",entry.response.status,{
+                "title" : entry.response.status+" "+entry.response.statusText
+            });
+            output += elStr("td",type,{
+                "title" : entry.response.content.mimeType
+            });
             if(entry.cache.hasOwnProperty('afterRequest')) {
-                output += "<td>"+format(entry.response.content.size,'size')+"</td>";
+                output += elStr("td",format(entry.response.content.size,'size'));
                 stats.size.cache += entry.response.content.size;
                 stats.type[type] += entry.response.content.size;
             } else {
-                output += "<td>"+format(entry.response.bodySize,'size')+"</td>";
+                output += elStr("td",format(entry.response.bodySize,'size'));
             }
-            output += "<td title='"+format(entry.time,'time')+"'>";
-            output += buildTimeline(entry,startTime)+"</td>";
+            output += elStr("td",buildTimeline(entry,startTime),{
+                "title" : format(entry.time,'time')
+            });
             output += "</tr>";
         }
         output += "</tbody><tfoot><tr class='total'>";
