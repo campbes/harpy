@@ -1,29 +1,73 @@
-var Harpy = function() {
+/*global $, google, Exos*/
+
+var Harpy = (function() {
+
+    function elStr(tag,content,attrs) {
+        var str = '<', att;
+        str += tag;
+        for (att in attrs) {
+            if(attrs.hasOwnProperty(att)) {
+                str += ' ';
+                str += att;
+                str += '="';
+                str += attrs[att];
+                str += '"';
+            }
+        }
+        str += '>';
+        if(content) {
+            str += content;
+        }
+        str += '</';
+        str += tag;
+        str += '>';
+
+        return str;
+    }
 
     function buildTimeline(obj,startTime) {
 
-        var start = new Date(obj.startedDateTime) - startTime;
-
         var str = "";
-        str += "<div class='blocked' data-start='"+start+"' data-time='"+obj.timings.blocked+"'></div>";
-        str += "<div class='dns' data-time='"+obj.timings.dns+"'></div>";
-        str += "<div class='connect' data-time='"+obj.timings.connect+"'></div>";
-        str += "<div class='send' data-time='"+obj.timings.send+"'></div>";
-        str += "<div class='wait' data-time='"+obj.timings.wait+"'></div>";
-        str += "<div class='receive' data-time='"+obj.timings.receive+"'></div>";
+        var timings = ["blocked","dns","connect","send","wait","receive"];
+        var timingsLength = timings.length;
+        var i = 0;
+        var timing;
+        var attrs;
+
+        for(i=0; i<timingsLength; i++) {
+            timing =timings[i];
+            attrs = {
+                "class" : timing,
+                "data-time" : obj.timings[timing]
+            };
+            if(timing === "blocked") {
+                attrs["data-start"] = new Date(obj.startedDateTime) - startTime;
+            }
+            str += elStr("div","",attrs);
+        }
+
         return str;
     }
 
     function getMimetype(type) {
-        if(type.indexOf("image") !== -1) {
+
+        function is(str) {
+            return type.indexOf(str) !== -1;
+        }
+
+        if(is("image")) {
             return "image";
-        } else if(type.indexOf("html") !== -1) {
+        }
+        if(is("html")) {
             return "html";
-        } else if(type.indexOf("javascript") !== -1) {
+        }
+        if(is("javascript")) {
             return "js";
-        } else if(type.indexOf("css") !== -1) {
+        }
+        if(is("css")) {
             return "css";
-        } else if(type.indexOf("text") !== -1) {
+        }
+        if(is("text")) {
             return "text";
         }
         return "other";
@@ -33,36 +77,32 @@ var Harpy = function() {
         switch(type) {
             case "size" :
                 if(val > 1024) {
-                    val = val/102.4;
-                    val = Math.round(val);
+                    val = Math.round(val/102.4);
                     return val/10+ " KB";
                 }
                 return val+ " B";
-                break;
             case "time" :
                 if(val > 1000) {
-                    val = val/10;
-                    val = Math.round(val);
+                    val = Math.round(val/10);
                     return val/100+ " s";
                 }
                 return val+ " ms";
-
         }
+        return val;
     }
 
     function buildMarker(time) {
-        var str = "<div class='loadMarker' ";
-        str += "data-dom='"+(time.onContentLoad || time.onLoad)+"' "
-        str += "data-page='"+time.onLoad+"'"
-        str += "></div>";
-        return str;
+        return elStr("div","",{
+            "class" : "loadMarker",
+            "data-dom" : (time.onContentLoad || time.onLoad),
+            "data-page" :time.onLoad
+        });
     }
 
-    function Viewer(har,options) {
+    function Viewer(har) {
         var viewer = this;
         var entryCache = {};
         var el = null;
-        options = options || {};
         var output = "";
         har = JSON.parse(har);
 
@@ -101,54 +141,43 @@ var Harpy = function() {
             }
         };
 
-
-        function elStr(tag,content,attrs) {
-            var str = '<';
-            str += tag;
-            for (var i in attrs) {
-                if(attrs.hasOwnProperty(i)) {
-                    str += ' ';
-                    str += i;
-                    str += '="';
-                    str += attrs[i];
-                    str += '"';
-                }
+        var headers = ["Req.","Meth.","URL","Status","Type","Size",{
+            val : buildMarker(time),
+            attrs : {
+                "class" : "timeline"
             }
-            str += '>';
-            if(content) {
-                str += content;
-            }
-            str += '</';
-            str += tag;
-            str += '>';
-
-            return str;
-        }
-
-
+        }];
+        var headersLength = headers.length;
+        var header;
+        var i = 0;
         output += "<thead><tr>";
-        output += elStr("th","Req.");
-        output += elStr("th","Meth.");
-        output += "<th>URL</th>";
-        output += "<th>Status</th>";
-        output += "<th>Type</th>";
-        output += "<th>Size</th>";
-        output += "<th class='timeline'>"+buildMarker(time)+"</th>";
-        //output += "<th>Time</th>";
-        output += "</tr></thead><tbody>";
+        for (i=0; i<headersLength; i++) {
+            header = headers[i];
+            if (typeof header === "string") {
+                output += elStr("th",header);
+            }
+            if(header.val) {
+                output += elStr("th",header.val,header.attrs);
+            }
+        }
+        output += "</tr></thead>";
 
-        for(var i=0; i<har.log.entries.length; i++) {
-            var entry = har.log.entries[i];
+        output+= "<tbody>";
+
+        var entry, url, type, endTime, x;
+
+        for(i=0; i<har.log.entries.length; i++) {
+            entry = har.log.entries[i];
             entryCache[i] = entry;
-            var url = entry.request.url;
-            var type = getMimetype(entry.response.content.mimeType);
+            url = entry.request.url;
+            type = getMimetype(entry.response.content.mimeType);
 
-            var endTime = new Date(entry.startedDateTime).getTime() + entry.time;
+            endTime = new Date(entry.startedDateTime).getTime() + entry.time;
             if(endTime > startTime.getTime() + time.total) {
                 time.total = endTime - startTime;
             }
 
-            for(var x in entry.timings) {
+            for(x in entry.timings) {
                 if(entry.timings.hasOwnProperty(x)) {
                     if( entry.timings[x] > 0) {
                         stats.time[x] += entry.timings[x];
@@ -164,16 +193,17 @@ var Harpy = function() {
                 url = url.replace(har.log.entries[0].request.url,"");
             }
             output += "<tr data-id='"+i+"' class='"+type+(entry.response.status === '(cache)' ? ' cache' : '')+"'>";
-            output += elStr("td",i+1);
+            output += elStr("td",(i+1));
             output += elStr("td",entry.request.method);
             output += elStr("td",url.substr(0,30)+(url.length > 30 ? "..." : ""),{
+                title : url,
                 "class" : "url"
             });
             output += elStr("td",entry.response.status,{
-                "title" : entry.response.status+" "+entry.response.statusText
+                title : entry.response.status+" "+entry.response.statusText
             });
             output += elStr("td",type,{
-                "title" : entry.response.content.mimeType
+                title : entry.response.content.mimeType
             });
             if(entry.cache.hasOwnProperty('afterRequest')) {
                 output += elStr("td",format(entry.response.content.size,'size'));
@@ -183,65 +213,43 @@ var Harpy = function() {
                 output += elStr("td",format(entry.response.bodySize,'size'));
             }
             output += elStr("td",buildTimeline(entry,startTime),{
-                "title" : format(entry.time,'time')
+                title : format(entry.time,'time')
             });
             output += "</tr>";
         }
-        output += "</tbody><tfoot><tr class='total'>";
-        output += "<td>"+har.log.entries.length+"</td>";
-        output += "<td></td><td></td><td></td><td></td><td>"+format((stats.size.download+stats.size.cache),'size')+"</td>";
-        output += "<td> ("+format(stats.size.cache,'size')+" from cache)<span title='DOM: "+format(time.onContentLoad || time.onLoad,'time')+", Page: "+format(time.onLoad,'time')+"'>"+format(time.total,'time')+"</span></td>";
-        //output += "<td title='DOM: "+format(time.onContentLoad || time.onLoad,'time')+", Page: "+format(time.onLoad,'time')+"'>"+format(time.total,'time')+"</td>";
+        output += "</tbody>";
+        output += "<tfoot><tr class='total'>";
+        output += elStr("td",har.log.entries.length);
+        output += elStr("td","",{
+            colspan : 4
+        });
+        output += elStr("td",format((stats.size.download+stats.size.cache),'size'));
+        output += "<td>";
+        output += format(stats.size.cache,'size')+" from cache)";
+        output += elStr("span",format(time.total,'time'),{
+            title  : "DOM: "+format(time.onContentLoad || time.onLoad,'time')+", Page: "+format(time.onLoad,'time')
+        });
+        output += "</td>";
         output += "</tr></tfoot>";
 
-        this.showInfo = function(obj) {
-            var id = obj.getAttribute("data-id");
-            var entry = entryCache[id];
-            if(entry.info) {
-                entry.info.style.display = (entry.info.style.display === "none" ? "table-row" : "none");
-                resize();
-                return;
-            }
-            var infoRow = document.createElement("TR");
-            var info = "<td></td><td class='info' colspan='6'>";
-            info += "<a href='"+entry.request.url+"' target='_blank'><strong>"+entry.request.url+"</strong></a>";
-            info += "<br/>"+entry.response.content.mimeType;
-            info += "<hr/>";
-            info += "<strong>Request headers</strong>";
-            info += "<table>";
-            for (var i=0; i<entry.request.headers.length; i++){
-                info += "<tr><td>"+entry.request.headers[i].name+"</td>";
-                info += "<td>"+entry.request.headers[i].value+"</td></tr>";
-            }
-            info += "</table>";
-            info += "<hr/>";
-            info += "<strong>Response headers</strong>";
-            info += "<table>";
-            for (var i=0; i<entry.response.headers.length; i++){
-                info += "<tr><td>"+entry.response.headers[i].name+"</td>";
-                info += "<td>"+entry.response.headers[i].value+"</td></tr>";
-            }
-            info += "</table>";
-            info += "</td>";
-            infoRow.innerHTML = info;
-
-            $(obj).after(infoRow);
-            entry.info = infoRow;
-            resize();
-        }
 
         function resize() {
             var timeline = $('#'+el+' th.timeline');
             var unit = timeline.width()/time.total;
             var times = $('#'+el+' table.harpy div');
             var marker = $('#'+el+' table.harpy div.loadMarker');
+            var tableHeight = $('#'+el+' table.harpy>tbody').height() + "px";
+
+            function unitise(obj,attr) {
+                return Math.round(Number(obj.getAttribute(attr))*unit);
+            }
 
             times.each(function() {
                 if(this.hasAttribute('data-start')) {
-                    this.style.marginLeft = Number(this.getAttribute('data-start'))*unit + "px";
+                    this.style.marginLeft = unitise(this,"data-start") + "px";
                 }
                 if(this.hasAttribute('data-time')) {
-                    this.style.width = Number(this.getAttribute('data-time'))*unit + "px";
+                    this.style.width = unitise(this,"data-time") + "px";
                 }
             });
 
@@ -249,18 +257,61 @@ var Harpy = function() {
                 var left = 0;
                 var width = 0;
                 if(this.hasAttribute('data-dom')) {
-                    left = Number(this.getAttribute('data-dom'))*unit;
+                    left = unitise(this,"data-dom");
                 }
                 if(this.hasAttribute('data-page')) {
-                    width = Number(this.getAttribute('data-page'))*unit - left;
+                    width = unitise(this,"data-page") - left;
                 }
                 this.style.marginLeft = left + "px";
                 this.style.width = width + "px";
-                this.style.height = $('#'+el+' table.harpy>tbody').height() + "px";
+                this.style.height = tableHeight;
             });
         }
 
         this.resize = resize;
+
+        this.showInfo = function(obj) {
+            var id = obj.getAttribute("data-id");
+            entry = entryCache[id];
+            if(entry.info) {
+                entry.info.style.display = (entry.info.style.display === "none" ? "table-row" : "none");
+                resize();
+                return;
+            }
+            var info = elStr("td");
+            info += "<td class='info' colspan='6'>";
+            info += "<a href='"+entry.request.url+"' target='_blank'><strong>"+entry.request.url+"</strong></a>";
+            info += "<br/>";
+            info += entry.response.content.mimeType;
+            info += "<hr/>";
+            info += elStr("strong","Request headers");
+            info += "<table>";
+            for (i=0; i<entry.request.headers.length; i++){
+                info += "<tr>";
+                info += elStr("td",entry.request.headers[i].name);
+                info += elStr("td",entry.request.headers[i].value);
+                info += "</tr>";
+            }
+            info += "</table>";
+            info += "<hr/>";
+            info += elStr("strong","Response headers");
+            info += "<table>";
+            for (i=0; i<entry.response.headers.length; i++){
+                info += "<tr>";
+                info += elStr("td",entry.response.headers[i].name);
+                info += elStr("td",entry.response.headers[i].value);
+                info += "</tr>";
+            }
+            info += "</table>";
+            info += "</td>";
+
+            var infoRow = document.createElement("TR");
+            infoRow.innerHTML = info;
+
+            $(obj).after(infoRow);
+            entry.info = infoRow;
+            resize();
+        };
 
         function drawCharts() {
 
@@ -292,30 +343,33 @@ var Harpy = function() {
                 }
             };
 
-            for(var x in stats) {
-                if(stats.hasOwnProperty(x)) {
-                    var stat = stats[x];
-                    var statData = [["",""]];
-                    for(var i in stat) {
-                        if(stat.hasOwnProperty(i)) {
-                            statData[statData.length] = [i,(stat[i] < 0 ? 0 : stat[i])]
+            var st, stat, statData, statProp, conf, chartEl, data, chart;
+
+            for(st in stats) {
+                if(stats.hasOwnProperty(st)) {
+                    stat = stats[st];
+                    statData = [["",""]];
+                    for(statProp in stat) {
+                        if(stat.hasOwnProperty(statProp)) {
+                            statData[statData.length] = [statProp,(stat[statProp] < 0 ? 0 : stat[statProp])];
                         }
                     }
-                }
 
-                for(var j in standardConfig) {
-                    if(standardConfig.hasOwnProperty(j)) {
-                        chartConfigs[x][j] = standardConfig[j];
+                    for(conf in standardConfig) {
+                        if(standardConfig.hasOwnProperty(conf)) {
+                            chartConfigs[st][conf] = standardConfig[conf];
+                        }
                     }
+
+                    chartEl = document.createElement("DIV");
+                    chartEl.className = 'harpyChart';
+                    document.getElementById(el).appendChild(chartEl);
+
+                    data = google.visualization.arrayToDataTable(statData);
+                    chart = new google.visualization.PieChart(chartEl);
+                    chart.draw(data,chartConfigs[st]);
+
                 }
-
-                var chartEl = document.createElement("DIV");
-                chartEl.className = 'harpyChart';
-                document.getElementById(el).appendChild(chartEl);
-
-                var data = google.visualization.arrayToDataTable(statData);
-                var chart = new google.visualization.PieChart(chartEl);
-                chart.draw(data,chartConfigs[x]);
             }
         }
 
@@ -330,20 +384,13 @@ var Harpy = function() {
                 drawCharts();
             }
 
-            var bhvr = {
-                selector : {
-                    click : {
-                        fn : function(e,obj) {
-                            console.log(viewer);
-                            viewer.showInfo(obj);
-                        }
-                    }
+            var bhvr = {};
+            bhvr["#"+el+" table.harpy>tbody>tr"] = {
+                click : function(e,obj) {
+                    viewer.showInfo(obj);
                 }
             };
-            bhvr["#"+el+" table.harpy>tbody>tr"] = bhvr.selector;
-            delete bhvr.selector;
-            Exos.enable([bhvr]);
-            console.log(Exos.behaviours);
+            Exos.enable([bhvr,{window : { resize : function(){ viewer.resize();}}}]);
 
             var table = document.createElement("TABLE");
             table.className = "harpy";
@@ -356,13 +403,12 @@ var Harpy = function() {
                     sortList : [[0,0]]
                 });
             }
-
-        }
+        };
     }
 
 
     return {
         Viewer : Viewer
-    }
+    };
 
-}();
+}());

@@ -1,0 +1,16 @@
+{
+  "name": "harpy",
+  "version": "0.0.1",
+  "private": true,
+    "devDependencies" : {
+        "grunt-contrib-clean" : "0.5.0",
+        "grunt-contrib-copy" : "0.4.1",
+        "grunt-contrib-concat" : "0.3.0",
+        "grunt-contrib-compress" : "0.5.2",
+        "grunt-contrib-cssmin" : "0.7.0",
+        "grunt-gcc" : "*",
+        "grunt-jslint" : "1.1.1",
+        "grunt-jstestdriver" : "2.2.0",
+        "grunt-curl" : "1.1.1"
+    }
+}
