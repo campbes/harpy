@@ -241,7 +241,7 @@ var Harpy = (function() {
             var tableHeight = $('#'+el+' table.harpy>tbody').height() + "px";
 
             function unitise(obj,attr) {
-                return Math.round(Number(obj.getAttribute(attr))*unit);
+                return Math.floor(Number(obj.getAttribute(attr))*unit);
             }
 
             times.each(function() {
