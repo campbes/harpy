@@ -91,6 +91,34 @@ var Harpy = (function() {
         return val;
     }
 
+    var standardConfig = {
+        pieSliceTextStyle : {
+            color : '#000'
+        },
+        chartArea : {
+            top :30,left: 10,bottom: 30,right: 10,width:300
+        }
+    };
+
+    var chartConfigs = {
+        time : {
+            colors : ['#d9534f','#F63','#F96','#9C9','#FC6','#5cb85c'],
+            title : "Time"
+        },
+        type : {
+            colors : ['#CCC','#FFB','#FBF','#BBF','#FBB'],
+            title : "Content"
+        },
+        uncached : {
+            colors : ['#CCC','#FFB','#FBF','#BBF','#FBB'],
+            title : "Uncached content"
+        },
+        size : {
+            colors : ['#5cb85c','#d9534f'],
+            title : "Cache profile"
+        }
+    };
+
     function buildMarker(time) {
         return elStr("div","",{
             "class" : "loadMarker",
@@ -99,17 +127,7 @@ var Harpy = (function() {
         });
     }
 
-    function Viewer(har) {
-        var viewer = this;
-        var entryCache = {};
-        var el = null;
-        var output = "";
-        har = JSON.parse(har);
-
-        var time = har.log.pages[0].pageTimings;
-        time.total = time.onLoad;
-
-        var startTime = new Date(har.log.pages[0].startedDateTime);
+    function createStatConfig() {
         var stats = {
             time : {
                 blocked : 0,
@@ -140,6 +158,80 @@ var Harpy = (function() {
                 download : 0
             }
         };
+        return stats;
+    }
+
+    function drawPieCharts(el,primaryData,secondaryData) {
+
+        var st, stat, stat2, statData, statData2, statProp, conf, chartEl, data, chart;
+
+        for(st in primaryData) {
+            if(primaryData.hasOwnProperty(st)) {
+                stat = primaryData[st];
+                statData = [["",""]];
+                if(secondaryData) {
+                    stat2 = secondaryData[st];
+                    statData2 = [["",""]];
+                }
+                for(statProp in stat) {
+                    if(stat.hasOwnProperty(statProp)) {
+                        statData[statData.length] = [statProp,(stat[statProp] < 0 ? 0 : stat[statProp])];
+                    }
+                    if(stat2 && stat2.hasOwnProperty(statProp)) {
+                        statData2[statData2.length] = [statProp,(stat2[statProp] < 0 ? 0 : stat2[statProp])];
+                    }
+                }
+
+                for(conf in standardConfig) {
+                    if(standardConfig.hasOwnProperty(conf)) {
+                        chartConfigs[st][conf] = standardConfig[conf];
+                    }
+                }
+
+                chartEl = document.createElement("DIV");
+                chartEl.className = 'harpyChart';
+                document.getElementById(el).appendChild(chartEl);
+                data = google.visualization.arrayToDataTable(statData);
+                chart = new google.visualization.PieChart(chartEl);
+
+                if(secondaryData) {
+                    var data2 = google.visualization.arrayToDataTable(statData2);
+                    data = chart.computeDiff(data2,data);
+                }
+
+                chart.draw(data,chartConfigs[st]);
+
+            }
+        }
+    }
+
+    function drawBarChart(el,dataArray) {
+        chartEl = document.createElement("DIV");
+        chartEl.className = 'harpyChart';
+        chartEl.style.width = "50%";
+        document.getElementById(el).appendChild(chartEl);
+
+        data = google.visualization.arrayToDataTable(dataArray);
+        chart = new google.visualization.BarChart(chartEl);
+
+        chart.draw(data,{
+            colors : ['#d9534f','#5cb85c'],
+            legend: "none"
+        });
+    }
+
+    function Viewer(har) {
+        var viewer = this;
+        var entryCache = {};
+        var el = null;
+        var output = "";
+        har = JSON.parse(har);
+
+        var time = har.log.pages[0].pageTimings;
+        time.total = time.onLoad;
+
+        var startTime = new Date(har.log.pages[0].startedDateTime);
+        var stats = createStatConfig();
 
         var headers = ["Req.","Meth.","URL","Status","Type","Size",{
             val : buildMarker(time),
@@ -314,63 +406,7 @@ var Harpy = (function() {
         };
 
         function drawCharts() {
-
-            var standardConfig = {
-                pieSliceTextStyle : {
-                    color : '#000'
-                },
-                chartArea : {
-                    top :30,left: 10,bottom: 30,right: 10,width:300
-                }
-            };
-
-            var chartConfigs = {
-                time : {
-                    colors : ['#d9534f','#F63','#F96','#9C9','#FC6','#5cb85c'],
-                    title : "Time"
-                },
-                type : {
-                    colors : ['#CCC','#FFB','#FBF','#BBF','#FBB'],
-                    title : "Content"
-                },
-                uncached : {
-                    colors : ['#CCC','#FFB','#FBF','#BBF','#FBB'],
-                    title : "Uncached content"
-                },
-                size : {
-                    colors : ['#5cb85c','#d9534f'],
-                    title : "Cache profile"
-                }
-            };
-
-            var st, stat, statData, statProp, conf, chartEl, data, chart;
-
-            for(st in stats) {
-                if(stats.hasOwnProperty(st)) {
-                    stat = stats[st];
-                    statData = [["",""]];
-                    for(statProp in stat) {
-                        if(stat.hasOwnProperty(statProp)) {
-                            statData[statData.length] = [statProp,(stat[statProp] < 0 ? 0 : stat[statProp])];
-                        }
-                    }
-
-                    for(conf in standardConfig) {
-                        if(standardConfig.hasOwnProperty(conf)) {
-                            chartConfigs[st][conf] = standardConfig[conf];
-                        }
-                    }
-
-                    chartEl = document.createElement("DIV");
-                    chartEl.className = 'harpyChart';
-                    document.getElementById(el).appendChild(chartEl);
-
-                    data = google.visualization.arrayToDataTable(statData);
-                    chart = new google.visualization.PieChart(chartEl);
-                    chart.draw(data,chartConfigs[st]);
-
-                }
-            }
+            drawPieCharts(el,stats);
         }
 
         this.draw = function(elID) {
@@ -406,9 +442,108 @@ var Harpy = (function() {
         };
     }
 
+    function Comparator(har1,har2) {
+
+        har1 = JSON.parse(har1);
+        har2 = JSON.parse(har2);
+
+        function getStats(har) {
+            var entry, i, url, type, endTime, x;
+            var time = har.log.pages[0].pageTimings;
+            time.total = time.onLoad;
+            var startTime = new Date(har.log.pages[0].startedDateTime);
+            var stats = createStatConfig();
+
+            for(i=0; i<har.log.entries.length; i++) {
+                entry = har.log.entries[i];
+                url = entry.request.url;
+                type = getMimetype(entry.response.content.mimeType);
+
+                endTime = new Date(entry.startedDateTime).getTime() + entry.time;
+                if(endTime > startTime.getTime() + time.total) {
+                    time.total = endTime - startTime;
+                }
+
+                for(x in entry.timings) {
+                    if(entry.timings.hasOwnProperty(x)) {
+                        if( entry.timings[x] > 0) {
+                            stats.time[x] += entry.timings[x];
+                        }
+                    }
+                }
+
+                stats.type[type] += entry.response.bodySize;
+                stats.uncached[type] += entry.response.bodySize;
+                stats.size.download += entry.response.bodySize;
+
+                if(i>0) {
+                    url = url.replace(har.log.entries[0].request.url,"");
+                }
+                if(entry.cache.hasOwnProperty('afterRequest')) {
+                    stats.size.cache += entry.response.content.size;
+                    stats.type[type] += entry.response.content.size;
+                }
+            }
+
+            return stats;
+        }
+
+        function getUncachedEntries(har) {
+            var entries = har.log.entries;
+            var uncachedEntries = 0;
+            for(var i=entries.length-1; i>=0; i--) {
+                if(entries[i].response.status !== "(cache)") {
+                    uncachedEntries += 1;
+                }
+            }
+            return uncachedEntries;
+        }
+
+        var stats1 = getStats(har1);
+        var stats2 = getStats(har2);
+
+        var uncachedEntries1 = getUncachedEntries(har1);
+        var uncachedEntries2 = getUncachedEntries(har2);
+
+        var har1Times = har1.log.pages[0].pageTimings;
+        var har2Times = har2.log.pages[0].pageTimings;
+
+        var headings = ["Metric","Uncached","Primed cache"];
+
+        var times = [
+            headings,
+            ["Dom load", har2Times.onContentLoad/1000,har1Times.onContentLoad/1000],
+            ["Load", har2Times.onLoad/1000,har1Times.onLoad/1000],
+            ["Total", har2Times.total/1000,har1Times.total/1000]
+        ];
+
+        var requests = [
+            headings,
+            ["Requests", uncachedEntries2,uncachedEntries1]
+        ];
+
+        function drawCharts() {
+            drawPieCharts(el,stats1,stats2);
+            drawBarChart(el,requests);
+            drawBarChart(el,times);
+        }
+
+        this.draw = function(elID) {
+            el = elID;
+            this.el = el;
+            if(!google.visualization) {
+                google.load("visualization", "1", {packages:["corechart"]});
+                google.setOnLoadCallback(drawCharts);
+            } else {
+                drawCharts();
+            }
+
+        };
+    }
 
     return {
-        Viewer : Viewer
+        Viewer : Viewer,
+        Comparator : Comparator
     };
 
 }());
