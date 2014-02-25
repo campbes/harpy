@@ -281,7 +281,7 @@ var Harpy = (function() {
                 return;
             }
             var infoRow = document.createElement("TR");
-            infoRow.innerHTML = Handlebars.templates.info(entry);
+            infoRow.innerHTML = Harpy.Templates.info(entry);
             $(obj).after(infoRow);
             entry.info = infoRow;
             resize();
@@ -321,7 +321,7 @@ var Harpy = (function() {
             setTimeout(this.resize,1);
 
             if($.tablesorter){
-                $("#"+el+">table").tablesorter({
+                $(table).tablesorter({
                     sortList : [[0,0]]
                 });
             }
