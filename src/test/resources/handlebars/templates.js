@@ -9,57 +9,57 @@ helpers = this.merge(helpers, Handlebars.helpers); partials = this.merge(partial
 function program1(depth0,data) {
   
   var buffer = "", stack1, stack2, options;
-  buffer += "\r\n        <tr data-id=\""
+  buffer += "\r\n    <tr data-id=\""
     + escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.harpy_info)),stack1 == null || stack1 === false ? stack1 : stack1.index)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
     + "\" class=\""
     + escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.harpy_info)),stack1 == null || stack1 === false ? stack1 : stack1.mimetype)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
     + " "
     + escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.harpy_info)),stack1 == null || stack1 === false ? stack1 : stack1.cache)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "\">\r\n            <td>"
+    + "\">\r\n        <td>"
     + escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.harpy_info)),stack1 == null || stack1 === false ? stack1 : stack1.index)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "</td>\r\n            <td>"
+    + "</td>\r\n        <td>"
     + escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.request)),stack1 == null || stack1 === false ? stack1 : stack1.method)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "</td>\r\n            <td class=\"url\" title=\""
+    + "</td>\r\n        <td class=\"url\" title=\""
     + escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.harpy_info)),stack1 == null || stack1 === false ? stack1 : stack1.url)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
     + "\">";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.trimmer || (depth0 && depth0.trimmer)),stack1 ? stack1.call(depth0, ((stack1 = (depth0 && depth0.harpy_info)),stack1 == null || stack1 === false ? stack1 : stack1.url), 30, true, options) : helperMissing.call(depth0, "trimmer", ((stack1 = (depth0 && depth0.harpy_info)),stack1 == null || stack1 === false ? stack1 : stack1.url), 30, true, options)))
-    + "</td>\r\n            <td title=\""
+    + "</td>\r\n        <td title=\""
     + escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.response)),stack1 == null || stack1 === false ? stack1 : stack1.status)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
     + " "
     + escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.response)),stack1 == null || stack1 === false ? stack1 : stack1.statusText)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
     + "\">"
     + escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.response)),stack1 == null || stack1 === false ? stack1 : stack1.status)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "</td>\r\n            <td title=\""
+    + "</td>\r\n        <td title=\""
     + escapeExpression(((stack1 = ((stack1 = ((stack1 = (depth0 && depth0.response)),stack1 == null || stack1 === false ? stack1 : stack1.content)),stack1 == null || stack1 === false ? stack1 : stack1.mimeType)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
     + "\">"
     + escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.harpy_info)),stack1 == null || stack1 === false ? stack1 : stack1.mimetype)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "</td>\r\n            <td>";
+    + "</td>\r\n        <td>";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.format || (depth0 && depth0.format)),stack1 ? stack1.call(depth0, ((stack1 = (depth0 && depth0.harpy_info)),stack1 == null || stack1 === false ? stack1 : stack1.size), "size", options) : helperMissing.call(depth0, "format", ((stack1 = (depth0 && depth0.harpy_info)),stack1 == null || stack1 === false ? stack1 : stack1.size), "size", options)))
-    + "</td>\r\n            <td>";
+    + "</td>\r\n        <td>";
   stack2 = self.invokePartial(partials.timeline, 'timeline', depth0, helpers, partials, data);
   if(stack2 || stack2 === 0) { buffer += stack2; }
-  buffer += "</td>\r\n        </tr>\r\n    ";
+  buffer += "</td>\r\n    </tr>\r\n";
   return buffer;
   }
 
-  buffer += "<table class=\"harpy\">\r\n    <thead>\r\n        <tr>\r\n            <th>Req.</th>\r\n            <th>Meth.</th>\r\n            <th>URL</th>\r\n            <th>Status</th>\r\n            <th>Type</th>\r\n            <th>Size</th>\r\n            <th class=\"timeline\">\r\n                <div class=\"loadMarker\" data-dom=\""
+  buffer += "<thead>\r\n    <tr>\r\n        <th>Req.</th>\r\n        <th>Meth.</th>\r\n        <th>URL</th>\r\n        <th>Status</th>\r\n        <th>Type</th>\r\n        <th>Size</th>\r\n        <th class=\"timeline\">\r\n            <div class=\"loadMarker\" data-dom=\""
     + escapeExpression(((stack1 = ((stack1 = ((stack1 = ((stack1 = ((stack1 = ((stack1 = (depth0 && depth0.log)),stack1 == null || stack1 === false ? stack1 : stack1.pages)),stack1 == null || stack1 === false ? stack1 : stack1[0])),stack1 == null || stack1 === false ? stack1 : stack1.harpy_info)),stack1 == null || stack1 === false ? stack1 : stack1.time)),stack1 == null || stack1 === false ? stack1 : stack1.onContentLoad)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
     + "\" data-page=\""
     + escapeExpression(((stack1 = ((stack1 = ((stack1 = ((stack1 = ((stack1 = ((stack1 = (depth0 && depth0.log)),stack1 == null || stack1 === false ? stack1 : stack1.pages)),stack1 == null || stack1 === false ? stack1 : stack1[0])),stack1 == null || stack1 === false ? stack1 : stack1.harpy_info)),stack1 == null || stack1 === false ? stack1 : stack1.time)),stack1 == null || stack1 === false ? stack1 : stack1.onLoad)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "\"></div>\r\n            </th>\r\n        </tr>\r\n    </thead>\r\n    <tbody>\r\n    ";
+    + "\"></div>\r\n        </th>\r\n    </tr>\r\n</thead>\r\n<tbody>\r\n";
   stack2 = helpers.each.call(depth0, ((stack1 = (depth0 && depth0.log)),stack1 == null || stack1 === false ? stack1 : stack1.entries), {hash:{},inverse:self.noop,fn:self.program(1, program1, data),data:data});
   if(stack2 || stack2 === 0) { buffer += stack2; }
-  buffer += "\r\n    </tbody>\r\n    <tfoot>\r\n        <tr class=\"total\">\r\n            <td>"
+  buffer += "\r\n</tbody>\r\n<tfoot>\r\n    <tr class=\"total\">\r\n        <td>"
     + escapeExpression(((stack1 = ((stack1 = ((stack1 = (depth0 && depth0.log)),stack1 == null || stack1 === false ? stack1 : stack1.entries)),stack1 == null || stack1 === false ? stack1 : stack1.length)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "</td>\r\n            <td colspan=\"4\"></td>\r\n            <td>";
+    + "</td>\r\n        <td colspan=\"4\"></td>\r\n        <td>";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.format || (depth0 && depth0.format)),stack1 ? stack1.call(depth0, ((stack1 = ((stack1 = ((stack1 = ((stack1 = ((stack1 = (depth0 && depth0.log)),stack1 == null || stack1 === false ? stack1 : stack1.pages)),stack1 == null || stack1 === false ? stack1 : stack1[0])),stack1 == null || stack1 === false ? stack1 : stack1.harpy_info)),stack1 == null || stack1 === false ? stack1 : stack1.size)),stack1 == null || stack1 === false ? stack1 : stack1.download), "size", options) : helperMissing.call(depth0, "format", ((stack1 = ((stack1 = ((stack1 = ((stack1 = ((stack1 = (depth0 && depth0.log)),stack1 == null || stack1 === false ? stack1 : stack1.pages)),stack1 == null || stack1 === false ? stack1 : stack1[0])),stack1 == null || stack1 === false ? stack1 : stack1.harpy_info)),stack1 == null || stack1 === false ? stack1 : stack1.size)),stack1 == null || stack1 === false ? stack1 : stack1.download), "size", options)))
-    + "</td>\r\n            <td>\r\n                (";
+    + "</td>\r\n        <td>\r\n            (";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.format || (depth0 && depth0.format)),stack1 ? stack1.call(depth0, ((stack1 = ((stack1 = ((stack1 = ((stack1 = ((stack1 = (depth0 && depth0.log)),stack1 == null || stack1 === false ? stack1 : stack1.pages)),stack1 == null || stack1 === false ? stack1 : stack1[0])),stack1 == null || stack1 === false ? stack1 : stack1.harpy_info)),stack1 == null || stack1 === false ? stack1 : stack1.size)),stack1 == null || stack1 === false ? stack1 : stack1.cache), "size", options) : helperMissing.call(depth0, "format", ((stack1 = ((stack1 = ((stack1 = ((stack1 = ((stack1 = (depth0 && depth0.log)),stack1 == null || stack1 === false ? stack1 : stack1.pages)),stack1 == null || stack1 === false ? stack1 : stack1[0])),stack1 == null || stack1 === false ? stack1 : stack1.harpy_info)),stack1 == null || stack1 === false ? stack1 : stack1.size)),stack1 == null || stack1 === false ? stack1 : stack1.cache), "size", options)))
-    + " from cache)\r\n                <span title=\"DOM: ";
+    + " from cache)\r\n            <span title=\"DOM: ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.format || (depth0 && depth0.format)),stack1 ? stack1.call(depth0, ((stack1 = ((stack1 = ((stack1 = ((stack1 = ((stack1 = (depth0 && depth0.log)),stack1 == null || stack1 === false ? stack1 : stack1.pages)),stack1 == null || stack1 === false ? stack1 : stack1[0])),stack1 == null || stack1 === false ? stack1 : stack1.harpy_info)),stack1 == null || stack1 === false ? stack1 : stack1.time)),stack1 == null || stack1 === false ? stack1 : stack1.onContentLoad), "time", options) : helperMissing.call(depth0, "format", ((stack1 = ((stack1 = ((stack1 = ((stack1 = ((stack1 = (depth0 && depth0.log)),stack1 == null || stack1 === false ? stack1 : stack1.pages)),stack1 == null || stack1 === false ? stack1 : stack1[0])),stack1 == null || stack1 === false ? stack1 : stack1.harpy_info)),stack1 == null || stack1 === false ? stack1 : stack1.time)),stack1 == null || stack1 === false ? stack1 : stack1.onContentLoad), "time", options)))
     + ", Page: ";
@@ -68,7 +68,7 @@ function program1(depth0,data) {
     + "\">";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.format || (depth0 && depth0.format)),stack1 ? stack1.call(depth0, ((stack1 = ((stack1 = ((stack1 = ((stack1 = ((stack1 = (depth0 && depth0.log)),stack1 == null || stack1 === false ? stack1 : stack1.pages)),stack1 == null || stack1 === false ? stack1 : stack1[0])),stack1 == null || stack1 === false ? stack1 : stack1.harpy_info)),stack1 == null || stack1 === false ? stack1 : stack1.time)),stack1 == null || stack1 === false ? stack1 : stack1.total), "time", options) : helperMissing.call(depth0, "format", ((stack1 = ((stack1 = ((stack1 = ((stack1 = ((stack1 = (depth0 && depth0.log)),stack1 == null || stack1 === false ? stack1 : stack1.pages)),stack1 == null || stack1 === false ? stack1 : stack1[0])),stack1 == null || stack1 === false ? stack1 : stack1.harpy_info)),stack1 == null || stack1 === false ? stack1 : stack1.time)),stack1 == null || stack1 === false ? stack1 : stack1.total), "time", options)))
-    + "</span>\r\n            </td>\r\n        </tr>\r\n    </tfoot>\r\n</table>\r\n";
+    + "</span>\r\n        </td>\r\n    </tr>\r\n</tfoot>";
   return buffer;
   });
 
