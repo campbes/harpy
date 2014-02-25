@@ -191,6 +191,7 @@ var Harpy = (function() {
             entry.harpy_info = {};
             entryCache[i] = entry;
             url = entry.request.url;
+            entry.harpy_info.source = (url.indexOf(har.log.entries[0].request.url) > -1 ? "internal" : "external");
             if(i>0) {
                 url = url.replace(har.log.entries[0].request.url,"");
             }

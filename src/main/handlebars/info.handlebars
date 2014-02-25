@@ -6,6 +6,22 @@
     <br/>
     {{response.content.mimeType}}
     <hr/>
+    <strong>Timings</strong>
+    <dl>
+        <dt>Blocked</dt>
+        <dd class="blocked">{{timings.blocked}} ms</dd>
+        <dt>DNS</dt>
+        <dd class="dns">{{timings.dns}} ms</dd>
+        <dt>Connect</dt>
+        <dd class="connect">{{timings.connect}} ms</dd>
+        <dt>Send</dt>
+        <dd class="send">{{timings.send}} ms</dd>
+        <dt>Wait</dt>
+        <dd class="wait">{{timings.wait}} ms</dd>
+        <dt>Receive</dt>
+        <dd class="receive">{{timings.receive}} ms</dd>
+    </dl>
+    <hr/>
     <strong>Request headers</strong>
     <table>
         {{#each request.headers}}

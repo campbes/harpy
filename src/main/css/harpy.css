@@ -12,7 +12,7 @@ table.harpy div.loadMarker {
     position: absolute;
     margin-top: 10px;
 }
-table.harpy tr.total {
+table.harpy tr.total, table.harpy>thead>tr {
     background: #EEE;
     font-weight: bold;
 }
@@ -28,11 +28,14 @@ table.harpy tr.js {
 table.harpy tr.text {
     background: #FEE;
 }
+table.harpy tr.external {
+    color: #3276b1;
+}
 table.harpy tr.cache {
     color: #999;
 }
 table.harpy th {
-    width: 20px;
+    width: 1px;
 }
 table.harpy th.timeline{
     width: auto;
@@ -50,12 +53,10 @@ table.harpy th.headerSortUp {
 table.harpy th.headerSortDown {
     background-image: url("../images/desc.gif");
 }
-table.harpy td:nth-child(even) {
-    background: #EEE;
-}
 table.harpy td {
     white-space: nowrap;
     border-bottom: 1px solid #CCC;
+    border-right: 1px solid #EEE;
     padding: 1px 5px;
 }
 table.harpy td.url {
@@ -64,22 +65,22 @@ table.harpy td.url {
 table.harpy tr.total span {
     float: right;
 }
-table.harpy div.blocked {
+table.harpy .blocked {
     background: #d9534f;
 }
-table.harpy div.dns {
+table.harpy .dns {
     background : #F63;
 }
-table.harpy div.connect {
+table.harpy .connect {
     background: #F96;
 }
-table.harpy div.send {
+table.harpy .send {
     background: #9C9;
 }
-table.harpy div.wait {
+table.harpy .wait {
     background: #FC6;
 }
-table.harpy div.receive {
+table.harpy .receive {
     background: #5cb85c;
     margin-right: 5px;
 }
@@ -94,12 +95,31 @@ table.harpy td.info table {
 }
 table.harpy td.info td:first-child {
     font-weight: bold;
+    background: #EEE;
 }
 table.harpy td.info td:nth-child(2) {
     white-space: normal;
+}
+table.harpy td.info div {
+    overflow: hidden;
+}
+table.harpy td.info dl {
+    clear: both;
+    overflow: hidden;
+}
+table.harpy td.info dt, table.harpy td.info dd {
+    display: inline-block;
+    float: left;
+    padding: 1px 5px;
+    margin: 0;
+}
+table.harpy td.info dt {
+    background: #EEE;
+    font-weight: bold;
 }
 div.harpyChart {
     width: 24%;
     float: left;
     height: 260px;
+    overflow: hidden;
 }

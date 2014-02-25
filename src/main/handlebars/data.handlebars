@@ -1,7 +1,7 @@
 <thead>
     <tr>
-        <th>Req.</th>
-        <th>Meth.</th>
+        <th></th>
+        <th>Method</th>
         <th>URL</th>
         <th>Status</th>
         <th>Type</th>
@@ -13,14 +13,14 @@
 </thead>
 <tbody>
 {{#each log.entries}}
-    <tr data-id="{{harpy_info.index}}" class="{{harpy_info.mimetype}} {{harpy_info.cache}}">
+    <tr data-id="{{@index}}" class="{{harpy_info.mimetype}} {{harpy_info.cache}} {{harpy_info.source}}">
         <td>{{harpy_info.index}}</td>
         <td>{{request.method}}</td>
         <td class="url" title="{{harpy_info.url}}">{{trimmer harpy_info.url 30 true}}</td>
         <td title="{{response.status}} {{response.statusText}}">{{response.status}}</td>
         <td title="{{response.content.mimeType}}">{{harpy_info.mimetype}}</td>
         <td>{{format harpy_info.size "size"}}</td>
-        <td>{{>timeline this}}</td>
+        <td title="Blocked: {{timings.blocked}} ms, DNS: {{timings.dns}} ms, Connect: {{timings.connect}} ms, Send: {{timings.send}} ms, Wait: {{timings.wait}} ms, Receive: {{timings.receive}} ms">{{>timeline this}}</td>
     </tr>
 {{/each}}
 </tbody>
