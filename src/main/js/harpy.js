@@ -313,7 +313,11 @@ var Harpy = (function() {
             Handlebars.registerHelper("trimmer",trimmer);
             Handlebars.registerHelper("format",format);
             Handlebars.registerPartial("timeline",Harpy.Templates.timeline);
-            document.getElementById(el).innerHTML = Harpy.Templates.data(har);
+
+            var table = document.createElement("TABLE");
+            table.innerHTML = Harpy.Templates.data(har);
+            table.className = "harpy";
+            document.getElementById(el).appendChild(table);
             setTimeout(this.resize,1);
 
             if($.tablesorter){
