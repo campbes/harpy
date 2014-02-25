@@ -1,53 +1,6 @@
-/*global $, google, Exos*/
+/*global $, google, Exos, Handlebars*/
 
 var Harpy = (function() {
-
-    function elStr(tag,content,attrs) {
-        var str = '<', att;
-        str += tag;
-        for (att in attrs) {
-            if(attrs.hasOwnProperty(att)) {
-                str += ' ';
-                str += att;
-                str += '="';
-                str += attrs[att];
-                str += '"';
-            }
-        }
-        str += '>';
-        if(content) {
-            str += content;
-        }
-        str += '</';
-        str += tag;
-        str += '>';
-
-        return str;
-    }
-
-    function buildTimeline(obj,startTime) {
-
-        var str = "";
-        var timings = ["blocked","dns","connect","send","wait","receive"];
-        var timingsLength = timings.length;
-        var i = 0;
-        var timing;
-        var attrs;
-
-        for(i=0; i<timingsLength; i++) {
-            timing =timings[i];
-            attrs = {
-                "class" : timing,
-                "data-time" : obj.timings[timing]
-            };
-            if(timing === "blocked") {
-                attrs["data-start"] = new Date(obj.startedDateTime) - startTime;
-            }
-            str += elStr("div","",attrs);
-        }
-
-        return str;
-    }
 
     function getMimetype(type) {
 
@@ -91,6 +44,14 @@ var Harpy = (function() {
         return val;
     }
 
+    function trimmer(str,val,reverse) {
+        var fixie = (str.length > val ? "..." : "");
+        if(reverse) {
+            return fixie + (str.length > val ? str.substr(str.length-val) : str);
+        }
+        return str.substr(0,val) + fixie;
+    }
+
     var standardConfig = {
         pieSliceTextStyle : {
             color : '#000'
@@ -118,14 +79,6 @@ var Harpy = (function() {
             title : "Cache profile"
         }
     };
-
-    function buildMarker(time) {
-        return elStr("div","",{
-            "class" : "loadMarker",
-            "data-dom" : (time.onContentLoad || time.onLoad),
-            "data-page" :time.onLoad
-        });
-    }
 
     function createStatConfig() {
         var stats = {
@@ -163,7 +116,7 @@ var Harpy = (function() {
 
     function drawPieCharts(el,primaryData,secondaryData) {
 
-        var st, stat, stat2, statData, statData2, statProp, conf, chartEl, data, chart;
+        var st, stat, stat2, statData, statData2, statProp, conf, chartEl, data, data2, chart;
 
         for(st in primaryData) {
             if(primaryData.hasOwnProperty(st)) {
@@ -176,9 +129,9 @@ var Harpy = (function() {
                 for(statProp in stat) {
                     if(stat.hasOwnProperty(statProp)) {
                         statData[statData.length] = [statProp,(stat[statProp] < 0 ? 0 : stat[statProp])];
-                    }
-                    if(stat2 && stat2.hasOwnProperty(statProp)) {
-                        statData2[statData2.length] = [statProp,(stat2[statProp] < 0 ? 0 : stat2[statProp])];
+                        if(stat2 && stat2.hasOwnProperty(statProp)) {
+                            statData2[statData2.length] = [statProp,(stat2[statProp] < 0 ? 0 : stat2[statProp])];
+                        }
                     }
                 }
 
@@ -195,7 +148,7 @@ var Harpy = (function() {
                 chart = new google.visualization.PieChart(chartEl);
 
                 if(secondaryData) {
-                    var data2 = google.visualization.arrayToDataTable(statData2);
+                    data2 = google.visualization.arrayToDataTable(statData2);
                     data = chart.computeDiff(data2,data);
                 }
 
@@ -206,13 +159,13 @@ var Harpy = (function() {
     }
 
     function drawBarChart(el,dataArray) {
-        chartEl = document.createElement("DIV");
+        var chartEl = document.createElement("DIV");
         chartEl.className = 'harpyChart';
         chartEl.style.width = "50%";
         document.getElementById(el).appendChild(chartEl);
 
-        data = google.visualization.arrayToDataTable(dataArray);
-        chart = new google.visualization.BarChart(chartEl);
+        var data = google.visualization.arrayToDataTable(dataArray);
+        var chart = new google.visualization.BarChart(chartEl);
 
         chart.draw(data,{
             colors : ['#d9534f','#5cb85c'],
@@ -224,7 +177,6 @@ var Harpy = (function() {
         var viewer = this;
         var entryCache = {};
         var el = null;
-        var output = "";
         har = JSON.parse(har);
 
         var time = har.log.pages[0].pageTimings;
@@ -232,36 +184,17 @@ var Harpy = (function() {
 
         var startTime = new Date(har.log.pages[0].startedDateTime);
         var stats = createStatConfig();
-
-        var headers = ["Req.","Meth.","URL","Status","Type","Size",{
-            val : buildMarker(time),
-            attrs : {
-                "class" : "timeline"
-            }
-        }];
-        var headersLength = headers.length;
-        var header;
-        var i = 0;
-        output += "<thead><tr>";
-        for (i=0; i<headersLength; i++) {
-            header = headers[i];
-            if (typeof header === "string") {
-                output += elStr("th",header);
-            }
-            if(header.val) {
-                output += elStr("th",header.val,header.attrs);
-            }
-        }
-        output += "</tr></thead>";
-
-        output+= "<tbody>";
-
-        var entry, url, type, endTime, x;
+        var i, entry, url, type, endTime, x;
 
         for(i=0; i<har.log.entries.length; i++) {
             entry = har.log.entries[i];
+            entry.harpy_info = {};
             entryCache[i] = entry;
             url = entry.request.url;
+            if(i>0) {
+                url = url.replace(har.log.entries[0].request.url,"");
+            }
+
             type = getMimetype(entry.response.content.mimeType);
 
             endTime = new Date(entry.startedDateTime).getTime() + entry.time;
@@ -281,49 +214,26 @@ var Harpy = (function() {
             stats.uncached[type] += entry.response.bodySize;
             stats.size.download += entry.response.bodySize;
 
-            if(i>0) {
-                url = url.replace(har.log.entries[0].request.url,"");
-            }
-            output += "<tr data-id='"+i+"' class='"+type+(entry.response.status === '(cache)' ? ' cache' : '')+"'>";
-            output += elStr("td",(i+1));
-            output += elStr("td",entry.request.method);
-            output += elStr("td",url.substr(0,30)+(url.length > 30 ? "..." : ""),{
-                title : url,
-                "class" : "url"
-            });
-            output += elStr("td",entry.response.status,{
-                title : entry.response.status+" "+entry.response.statusText
-            });
-            output += elStr("td",type,{
-                title : entry.response.content.mimeType
-            });
+            entry.harpy_info.index = i+1;
+            entry.harpy_info.url = url;
+            entry.harpy_info.mimetype = type;
+            entry.harpy_info.cache = (entry.response.status === '(cache)' ? ' cache' : '');
+
             if(entry.cache.hasOwnProperty('afterRequest')) {
-                output += elStr("td",format(entry.response.content.size,'size'));
                 stats.size.cache += entry.response.content.size;
                 stats.type[type] += entry.response.content.size;
+                entry.harpy_info.size = entry.response.content.size;
             } else {
-                output += elStr("td",format(entry.response.bodySize,'size'));
+                entry.harpy_info.size = entry.response.bodySize;
             }
-            output += elStr("td",buildTimeline(entry,startTime),{
-                title : format(entry.time,'time')
-            });
-            output += "</tr>";
+            entry.harpy_info.startTime = new Date(entry.startedDateTime) - startTime;
         }
-        output += "</tbody>";
-        output += "<tfoot><tr class='total'>";
-        output += elStr("td",har.log.entries.length);
-        output += elStr("td","",{
-            colspan : 4
-        });
-        output += elStr("td",format((stats.size.download+stats.size.cache),'size'));
-        output += "<td>";
-        output += format(stats.size.cache,'size')+" from cache)";
-        output += elStr("span",format(time.total,'time'),{
-            title  : "DOM: "+format(time.onContentLoad || time.onLoad,'time')+", Page: "+format(time.onLoad,'time')
-        });
-        output += "</td>";
-        output += "</tr></tfoot>";
 
+        var harpy_info = {};
+        harpy_info.time = time;
+        harpy_info.time.onContentLoad = time.onContentLoad || time.onLoad;
+        harpy_info.size = stats.size;
+        har.log.pages[0].harpy_info = harpy_info;
 
         function resize() {
             var timeline = $('#'+el+' th.timeline');
@@ -370,36 +280,8 @@ var Harpy = (function() {
                 resize();
                 return;
             }
-            var info = elStr("td");
-            info += "<td class='info' colspan='6'>";
-            info += "<a href='"+entry.request.url+"' target='_blank'><strong>"+entry.request.url+"</strong></a>";
-            info += "<br/>";
-            info += entry.response.content.mimeType;
-            info += "<hr/>";
-            info += elStr("strong","Request headers");
-            info += "<table>";
-            for (i=0; i<entry.request.headers.length; i++){
-                info += "<tr>";
-                info += elStr("td",entry.request.headers[i].name);
-                info += elStr("td",entry.request.headers[i].value);
-                info += "</tr>";
-            }
-            info += "</table>";
-            info += "<hr/>";
-            info += elStr("strong","Response headers");
-            info += "<table>";
-            for (i=0; i<entry.response.headers.length; i++){
-                info += "<tr>";
-                info += elStr("td",entry.response.headers[i].name);
-                info += elStr("td",entry.response.headers[i].value);
-                info += "</tr>";
-            }
-            info += "</table>";
-            info += "</td>";
-
             var infoRow = document.createElement("TR");
-            infoRow.innerHTML = info;
-
+            infoRow.innerHTML = Handlebars.templates.info(entry);
             $(obj).after(infoRow);
             entry.info = infoRow;
             resize();
@@ -428,14 +310,14 @@ var Harpy = (function() {
             };
             Exos.enable([bhvr,{window : { resize : function(){ viewer.resize();}}}]);
 
-            var table = document.createElement("TABLE");
-            table.className = "harpy";
-            table.innerHTML = output;
-            document.getElementById(el).appendChild(table);
+            Handlebars.registerHelper("trimmer",trimmer);
+            Handlebars.registerHelper("format",format);
+            Handlebars.registerPartial("timeline",Harpy.Templates.timeline);
+            document.getElementById(el).innerHTML = Harpy.Templates.data(har);
             setTimeout(this.resize,1);
 
             if($.tablesorter){
-                $(table).tablesorter({
+                $("#"+el+">table").tablesorter({
                     sortList : [[0,0]]
                 });
             }
@@ -446,6 +328,8 @@ var Harpy = (function() {
 
         har1 = JSON.parse(har1);
         har2 = JSON.parse(har2);
+
+        var el;
 
         function getStats(har) {
             var entry, i, url, type, endTime, x;
@@ -491,7 +375,8 @@ var Harpy = (function() {
         function getUncachedEntries(har) {
             var entries = har.log.entries;
             var uncachedEntries = 0;
-            for(var i=entries.length-1; i>=0; i--) {
+            var i;
+            for(i=entries.length-1; i>=0; i--) {
                 if(entries[i].response.status !== "(cache)") {
                     uncachedEntries += 1;
                 }

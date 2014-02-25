@@ -7,6 +7,7 @@ module.exports = function(grunt) {
         props : {
             out : 'target',
             src : 'src/main',
+            test : 'src/test',
             name : '<%=pkg.name%>-<%=pkg.version%>'
         },
         clean : ['target'],
@@ -30,6 +31,22 @@ module.exports = function(grunt) {
                 }
             }
         },
+        handlebars : {
+            compile : {
+                options : {
+                    namespace : 'Harpy.Templates',
+                    partialsUseNamespace : true,
+                    processName : function(path) {
+                        path = path.replace(".handlebars","");
+                        return path.substr(path.lastIndexOf("/")+1);
+                    }
+                },
+                files : {
+                    '<%= props.out%>/templates/templates.js' : ['<%= props.src%>/handlebars/*.handlebars'],
+                    '<%= props.test%>/resources/handlebars/templates.js' : ['<%= props.src%>/handlebars/*.handlebars']
+                }
+            }
+        },
         copy : { // copy everything - so can run in dev mode
             info: {
                 files: [
@@ -44,7 +61,8 @@ module.exports = function(grunt) {
         concat: { // build the webapp
             js: {
                 src: [
-                    '<%= props.src%>/js/**/*.js'
+                    '<%= props.src%>/js/**/*.js',
+                    '<%= props.out%>/templates/templates.js'
                 ],
                 dest: '<%= props.out%>/<%=props.name%>/<%=props.name%>.js'
             },
@@ -85,6 +103,7 @@ module.exports = function(grunt) {
     });
 
     grunt.loadNpmTasks('grunt-install-dependencies');
+    grunt.loadNpmTasks('grunt-contrib-handlebars');
 
     for(var i in pkg.devDependencies) {
         if(pkg.devDependencies.hasOwnProperty(i)) {
@@ -92,7 +111,7 @@ module.exports = function(grunt) {
         }
     }
 
-    grunt.registerTask('compile', ['jslint','copy','concat','gcc','cssmin']);
+    grunt.registerTask('compile', ['jslint','copy','handlebars','concat','gcc','cssmin']);
     grunt.registerTask('package', ['compress']);
     grunt.registerTask('default', ['clean','compile','package']);
 

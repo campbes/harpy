@@ -1,0 +1,29 @@
+<td></td>
+<td class="info" colspan="6">
+    <a href="{{entry.request.url}}" target="_blank">
+        <strong>{{request.url}}</strong>
+    </a>
+    <br/>
+    {{response.content.mimeType}}
+    <hr/>
+    <strong>Request headers</strong>
+    <table>
+        {{#each request.headers}}
+            <tr>
+                <td>{{name}}</td>
+                <td>{{value}}</td>
+            </tr>
+        {{/each}}
+    </table>
+    <hr/>
+    <strong>Response headers</strong>
+    <table>
+        {{#each response.headers}}
+            <tr>
+                <td>{{name}}</td>
+                <td>{{value}}</td>
+            </tr>
+        {{/each}}
+    </table>
+    <hr/>
+</td>

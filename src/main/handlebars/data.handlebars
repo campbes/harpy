@@ -1,0 +1,39 @@
+<table class="harpy">
+    <thead>
+        <tr>
+            <th>Req.</th>
+            <th>Meth.</th>
+            <th>URL</th>
+            <th>Status</th>
+            <th>Type</th>
+            <th>Size</th>
+            <th class="timeline">
+                <div class="loadMarker" data-dom="{{log.pages.[0].harpy_info.time.onContentLoad}}" data-page="{{log.pages.[0].harpy_info.time.onLoad}}"></div>
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+    {{#each log.entries}}
+        <tr data-id="{{harpy_info.index}}" class="{{harpy_info.mimetype}} {{harpy_info.cache}}">
+            <td>{{harpy_info.index}}</td>
+            <td>{{request.method}}</td>
+            <td class="url" title="{{harpy_info.url}}">{{trimmer harpy_info.url 30 true}}</td>
+            <td title="{{response.status}} {{response.statusText}}">{{response.status}}</td>
+            <td title="{{response.content.mimeType}}">{{harpy_info.mimetype}}</td>
+            <td>{{format harpy_info.size "size"}}</td>
+            <td>{{>timeline this}}</td>
+        </tr>
+    {{/each}}
+    </tbody>
+    <tfoot>
+        <tr class="total">
+            <td>{{log.entries.length}}</td>
+            <td colspan="4"></td>
+            <td>{{format log.pages.[0].harpy_info.size.download "size"}}</td>
+            <td>
+                ({{format log.pages.[0].harpy_info.size.cache "size"}} from cache)
+                <span title="DOM: {{format log.pages.[0].harpy_info.time.onContentLoad "time"}}, Page: {{format log.pages.[0].harpy_info.time.onLoad "time"}}">{{format log.pages.[0].harpy_info.time.total "time"}}</span>
+            </td>
+        </tr>
+    </tfoot>
+</table>
