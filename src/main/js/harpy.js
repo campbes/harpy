@@ -188,8 +188,7 @@ var Harpy = (function() {
 
         var domain = har.log.entries[0].request.url.split("://");
         if(domain[1]) {
-            domain = domain[1];
-            domain = domain.split("/")[0];
+            domain = domain[0] + "://" + domain[1].split("/")[0];
         }
 
         for(i=0; i<har.log.entries.length; i++) {
