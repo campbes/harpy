@@ -186,12 +186,19 @@ var Harpy = (function() {
         var stats = createStatConfig();
         var i, entry, url, type, endTime, x;
 
+        var domain = har.log.entries[0].request.url.split("://");
+        if(domain[1]) {
+            domain = domain[1];
+            domain = domain.split("/")[0];
+        }
+
         for(i=0; i<har.log.entries.length; i++) {
             entry = har.log.entries[i];
             entry.harpy_info = {};
             entryCache[i] = entry;
             url = entry.request.url;
-            entry.harpy_info.source = (url.indexOf(har.log.entries[0].request.url) > -1 ? "internal" : "external");
+
+            entry.harpy_info.source = (url.indexOf(domain) > -1 ? "internal" : "external");
             if(i>0) {
                 url = url.replace(har.log.entries[0].request.url,"");
             }
