@@ -6,6 +6,7 @@
     </head>
     <body>
     <div id="har"></div>
+    <div id="comparator"></div>
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
         <script src="jquery.tablesorter.min.js"></script>
         <script src="https://www.google.com/jsapi"></script>
@@ -17,6 +18,8 @@
         <script>
             var viewer = new Harpy.Viewer(har);
             viewer.draw("har");
+            var comparator = new Harpy.Comparator(har,har);
+            comparator.draw("comparator");
         </script>
 
     </body>

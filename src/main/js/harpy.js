@@ -58,6 +58,11 @@ var Harpy = (function() {
         },
         chartArea : {
             top :30,left: 10,bottom: 30,right: 10,width:300
+        },
+        diff : {
+            oldData : {
+                opacity : 0.7
+            }
         }
     };
 
@@ -109,6 +114,15 @@ var Harpy = (function() {
             size : {
                 cache : 0,
                 download : 0
+            },
+            requests : {
+                cached : 0,
+                uncached : 0
+            },
+            timing : {
+                onContentLoad : 0,
+                onLoad : 0,
+                total : 0
             }
         };
         return stats;
@@ -119,7 +133,7 @@ var Harpy = (function() {
         var st, stat, stat2, statData, statData2, statProp, conf, chartEl, data, data2, chart;
 
         for(st in primaryData) {
-            if(primaryData.hasOwnProperty(st)) {
+            if(primaryData.hasOwnProperty(st) && chartConfigs[st]) {
                 stat = primaryData[st];
                 statData = [["",""]];
                 if(secondaryData) {
@@ -160,30 +174,33 @@ var Harpy = (function() {
 
     function drawBarChart(el,dataArray) {
         var chartEl = document.createElement("DIV");
-        chartEl.className = 'harpyChart';
-        chartEl.style.width = "50%";
+        chartEl.className = 'harpyChart harpyBarChart';
         document.getElementById(el).appendChild(chartEl);
 
         var data = google.visualization.arrayToDataTable(dataArray);
         var chart = new google.visualization.BarChart(chartEl);
 
         chart.draw(data,{
-            colors : ['#d9534f','#5cb85c'],
-            legend: "none"
+            colors : ['#5cb85c','#d9534f'],
+            legend: "none",
+            hAxis : {
+                maxValue : 0
+            }
         });
     }
 
-    function Viewer(har) {
-        var viewer = this;
+    function harpify(har) {
+
         var entryCache = {};
-        var el = null;
-        har = JSON.parse(har);
+        var stats = createStatConfig();
 
         var time = har.log.pages[0].pageTimings;
-        time.total = time.onLoad;
+        stats.timing.onLoad = time.onLoad;
+        stats.timing.total = time.onLoad;
+        stats.timing.onContentLoad = time.onContentLoad || time.onLoad;
 
         var startTime = new Date(har.log.pages[0].startedDateTime);
-        var stats = createStatConfig();
+
         var i, entry, url, type, endTime, x;
 
         var domain = har.log.entries[0].request.url.split("://");
@@ -206,7 +223,7 @@ var Harpy = (function() {
 
             endTime = new Date(entry.startedDateTime).getTime() + entry.time;
             if(endTime > startTime.getTime() + time.total) {
-                time.total = endTime - startTime;
+                stats.timing.total = endTime - startTime;
             }
 
             for(x in entry.timings) {
@@ -224,7 +241,12 @@ var Harpy = (function() {
             entry.harpy_info.index = i+1;
             entry.harpy_info.url = url;
             entry.harpy_info.mimetype = type;
-            entry.harpy_info.cache = (entry.response.status === '(cache)' ? ' cache' : '');
+            if(entry.response.status === '(cache)') {
+                entry.harpy_info.cache = "cache";
+                stats.requests.cached += 1;
+            } else {
+                stats.requests.uncached += 1;
+            }
 
             if(entry.cache.hasOwnProperty('afterRequest')) {
                 stats.size.cache += entry.response.content.size;
@@ -237,14 +259,29 @@ var Harpy = (function() {
         }
 
         var harpy_info = {};
-        harpy_info.time = time;
-        harpy_info.time.onContentLoad = time.onContentLoad || time.onLoad;
+        harpy_info.time = stats.timing;
         harpy_info.size = stats.size;
         har.log.pages[0].harpy_info = harpy_info;
 
+        return {
+            har : har,
+            stats : stats,
+            entryCache : entryCache
+        };
+    }
+
+    function Viewer(har) {
+        var viewer = this;
+        var el = null;
+        har = JSON.parse(har);
+        var harpy = harpify(har);
+        har = harpy.har;
+        var entryCache = harpy.entryCache;
+        var stats = harpy.stats;
+
         function resize() {
             var timeline = $('#'+el+' th.timeline');
-            var unit = timeline.width()/time.total;
+            var unit = timeline.width()/har.log.pages[0].harpy_info.time.total;
             var times = $('#'+el+' table.harpy div');
             var marker = $('#'+el+' table.harpy div.loadMarker');
             var tableHeight = $('#'+el+' table.harpy>tbody').height() + "px";
@@ -281,7 +318,7 @@ var Harpy = (function() {
 
         this.showInfo = function(obj) {
             var id = obj.getAttribute("data-id");
-            entry = entryCache[id];
+            var entry = entryCache[id];
             if(entry.info) {
                 entry.info.style.display = (entry.info.style.display === "none" ? "table-row" : "none");
                 resize();
@@ -340,88 +377,36 @@ var Harpy = (function() {
         har1 = JSON.parse(har1);
         har2 = JSON.parse(har2);
 
+        var harpy1 = harpify(har1);
+        var harpy2 = harpify(har2);
+
+        var stats1 = harpy1.stats;
+        var stats2 = harpy2.stats;
         var el;
 
-        function getStats(har) {
-            var entry, i, url, type, endTime, x;
-            var time = har.log.pages[0].pageTimings;
-            time.total = time.onLoad;
-            var startTime = new Date(har.log.pages[0].startedDateTime);
-            var stats = createStatConfig();
+        var headings = ["Metric","Primed cache","Uncached"];
 
-            for(i=0; i<har.log.entries.length; i++) {
-                entry = har.log.entries[i];
-                url = entry.request.url;
-                type = getMimetype(entry.response.content.mimeType);
-
-                endTime = new Date(entry.startedDateTime).getTime() + entry.time;
-                if(endTime > startTime.getTime() + time.total) {
-                    time.total = endTime - startTime;
-                }
-
-                for(x in entry.timings) {
-                    if(entry.timings.hasOwnProperty(x)) {
-                        if( entry.timings[x] > 0) {
-                            stats.time[x] += entry.timings[x];
-                        }
-                    }
-                }
-
-                stats.type[type] += entry.response.bodySize;
-                stats.uncached[type] += entry.response.bodySize;
-                stats.size.download += entry.response.bodySize;
-
-                if(i>0) {
-                    url = url.replace(har.log.entries[0].request.url,"");
-                }
-                if(entry.cache.hasOwnProperty('afterRequest')) {
-                    stats.size.cache += entry.response.content.size;
-                    stats.type[type] += entry.response.content.size;
-                }
-            }
-
-            return stats;
-        }
-
-        function getUncachedEntries(har) {
-            var entries = har.log.entries;
-            var uncachedEntries = 0;
-            var i;
-            for(i=entries.length-1; i>=0; i--) {
-                if(entries[i].response.status !== "(cache)") {
-                    uncachedEntries += 1;
-                }
-            }
-            return uncachedEntries;
-        }
-
-        var stats1 = getStats(har1);
-        var stats2 = getStats(har2);
-
-        var uncachedEntries1 = getUncachedEntries(har1);
-        var uncachedEntries2 = getUncachedEntries(har2);
-
-        var har1Times = har1.log.pages[0].pageTimings;
-        var har2Times = har2.log.pages[0].pageTimings;
-
-        var headings = ["Metric","Uncached","Primed cache"];
-
-        var times = [
+        var timings = [
             headings,
-            ["Dom load", har2Times.onContentLoad/1000,har1Times.onContentLoad/1000],
-            ["Load", har2Times.onLoad/1000,har1Times.onLoad/1000],
-            ["Total", har2Times.total/1000,har1Times.total/1000]
+            ["Dom load", stats1.timing.onContentLoad/1000,stats2.timing.onContentLoad/1000],
+            ["Load", stats1.timing.onLoad/1000,stats2.timing.onLoad/1000],
+            ["Total", stats1.timing.total/1000,stats2.timing.total/1000]
         ];
 
         var requests = [
             headings,
-            ["Requests", uncachedEntries2,uncachedEntries1]
+            ["Requests", stats1.requests.uncached,stats2.requests.uncached]
+        ];
+        var size = [
+            headings,
+            ["Size", stats1.size.download/1024,stats2.size.download/1024]
         ];
 
         function drawCharts() {
             drawPieCharts(el,stats1,stats2);
+            drawBarChart(el,timings);
             drawBarChart(el,requests);
-            drawBarChart(el,times);
+            drawBarChart(el,size);
         }
 
         this.draw = function(elID) {

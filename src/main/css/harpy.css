@@ -123,3 +123,6 @@ div.harpyChart {
     height: 260px;
     overflow: hidden;
 }
+div.harpyBarChart {
+    width: 32%;
+}
