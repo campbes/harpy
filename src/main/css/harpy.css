@@ -96,6 +96,7 @@ table.harpy td.info table {
 table.harpy td.info td:first-child {
     font-weight: bold;
     background: #EEE;
+    width: 200px;
 }
 table.harpy td.info td:nth-child(2) {
     white-space: normal;

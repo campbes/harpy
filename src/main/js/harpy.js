@@ -352,7 +352,10 @@ var Harpy = (function() {
                     viewer.showInfo(obj);
                 }
             };
-            Exos.enable([bhvr,{window : { resize : function(){ viewer.resize();}}}]);
+
+            viewer.behaviours = [bhvr,{window : { resize : function(){ viewer.resize();}}}];
+
+            Exos.enable(viewer.behaviours);
 
             Handlebars.registerHelper("trimmer",trimmer);
             Handlebars.registerHelper("format",format);
@@ -370,6 +373,11 @@ var Harpy = (function() {
                 });
             }
         };
+
+        this.destroy = function() {
+            Exos.remove(viewer.behaviours);
+        };
+
     }
 
     function Comparator(har1,har2) {
