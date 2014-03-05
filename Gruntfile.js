@@ -61,7 +61,9 @@ module.exports = function(grunt) {
         concat: { // build the webapp
             js: {
                 src: [
-                    '<%= props.src%>/js/**/*.js',
+                    '<%= props.src%>/js/harpy.js',
+                    '<%= props.src%>/js/modules/**/*.js',
+                    '<%= props.src%>/js/init.js',
                     '<%= props.out%>/templates/templates.js'
                 ],
                 dest: '<%= props.out%>/<%=props.name%>/<%=props.name%>.js'
@@ -112,11 +114,39 @@ module.exports = function(grunt) {
                     }
                 ]
             }
+        },
+        jasmine: {
+            src: ['<%= props.src%>/js/harpy.js',
+                '<%= props.src%>/js/modules/**/*.js'],
+            options: {
+                specs: ['<%= props.test%>/js/modules/**/*.js',
+                    '<%= props.test%>/js/**/harpySpec.js'],
+                helpers: ['<%= props.test%>/js/**/*Helper.js',
+                    '<%= props.test%>/resources/googleHar.js',
+                    '<%= props.test%>/resources/exos*.js'],
+                template: require('grunt-template-jasmine-istanbul'),
+                templateOptions: {
+                    coverage: '<%= props.out%>/coverage/coverage.json',
+                    report: '<%= props.out%>/coverage',
+                    thresholds: {
+                        lines: 70,
+                        statements: 70,
+                        branches: 70,
+                        functions: 70
+                    }
+                }
+            }
+        },
+        plato: {
+            your_task: {
+                files: {
+                    '<%= props.out%>/analysis': ['<%= props.src%>/js/**/*.js', 'test/**/*.js']
+                }
+            }
         }
     });
 
     grunt.loadNpmTasks('grunt-install-dependencies');
-    grunt.loadNpmTasks('grunt-contrib-handlebars');
 
     for(var i in pkg.devDependencies) {
         if(pkg.devDependencies.hasOwnProperty(i)) {
@@ -125,7 +155,9 @@ module.exports = function(grunt) {
     }
 
     grunt.registerTask('compile', ['jslint','copy','handlebars','concat','gcc','cssmin']);
+    grunt.registerTask('test', ['jasmine']);
+    grunt.registerTask('analyse', ['plato']);
     grunt.registerTask('package', ['compress']);
-    grunt.registerTask('default', ['clean','compile','package']);
+    grunt.registerTask('default', ['clean','compile','test','package']);
 
 };

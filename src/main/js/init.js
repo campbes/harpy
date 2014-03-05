@@ -1,0 +1,3 @@
+/*global Harpy*/
+
+Harpy.init();

@@ -8,9 +8,12 @@
         "grunt-contrib-concat" : "0.3.0",
         "grunt-contrib-compress" : "0.5.2",
         "grunt-contrib-cssmin" : "0.7.0",
+        "grunt-contrib-handlebars" : "0.6.1",
+        "grunt-contrib-jasmine" : "0.6.1",
         "grunt-gcc" : "*",
         "grunt-jslint" : "1.1.1",
         "grunt-jstestdriver" : "2.2.0",
-        "grunt-curl" : "1.1.1"
+        "grunt-curl" : "1.1.1",
+        "grunt-plato" : "1.0.0"
     }
 }
