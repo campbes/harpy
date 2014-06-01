@@ -4,6 +4,8 @@ Harpy.util = (function(){
 
     function getMimetype(type) {
 
+        type = type || "";
+
         function is(str) {
             return type.indexOf(str) !== -1;
         }
