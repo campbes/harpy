@@ -13,7 +13,7 @@
 </thead>
 <tbody>
 {{#each log.entries}}
-    <tr data-id="{{@index}}" class="{{harpy_info.mimetype}} {{harpy_info.cache}} {{harpy_info.source}}">
+    <tr data-id="{{@index}}" class="{{harpy_info.mimetype}} {{harpy_info.cache}} {{harpy_info.source}} {{harpy_info.error}}">
         <td>{{harpy_info.index}}</td>
         <td>{{request.method}}</td>
         <td class="url" title="{{harpy_info.url}}">{{trimmer harpy_info.url 30 true}}</td>
