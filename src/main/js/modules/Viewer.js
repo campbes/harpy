@@ -60,13 +60,14 @@ Harpy.Viewer = function($harpy) {
             return obj;
         };
 
-        function drawCharts() {
-            $harpy.render.drawPieCharts(el,stats);
-        }
 
-        this.draw = function(elID) {
+        this.draw = function(elID,cfg) {
             el = elID;
             this.el = el;
+
+            function drawCharts() {
+                $harpy.render.drawPieCharts(el,stats,null,cfg);
+            }
 
             if(!google.visualization) {
                 google.load("visualization", "1", {packages:["corechart"]});
