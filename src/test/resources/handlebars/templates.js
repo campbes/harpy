@@ -109,7 +109,7 @@ function program1(depth0,data) {
   }
 
   buffer += "<td></td>\r\n<td class=\"info\" colspan=\"6\">\r\n    <a href=\""
-    + escapeExpression(((stack1 = ((stack1 = ((stack1 = (depth0 && depth0.entry)),stack1 == null || stack1 === false ? stack1 : stack1.request)),stack1 == null || stack1 === false ? stack1 : stack1.url)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.request)),stack1 == null || stack1 === false ? stack1 : stack1.url)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
     + "\" target=\"_blank\">\r\n        <strong>"
     + escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.request)),stack1 == null || stack1 === false ? stack1 : stack1.url)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
     + "</strong>\r\n    </a>\r\n    <br/>\r\n    "

@@ -57,20 +57,31 @@ Harpy.harpify = function($harpy) {
 
         var startTime = new Date(har.log.pages[0].startedDateTime);
 
-        var i, entry, url, type, endTime, x;
-
-        var domain = har.log.entries[0].request.url.split("://");
-        if(domain[1]) {
-            domain = domain[0] + "://" + domain[1].split("/")[0];
-        }
+        var i, entry, url, type, endTime, x, domain, source, urlDomain, redirect;
 
         for(i=0; i<har.log.entries.length; i++) {
             entry = har.log.entries[i];
-            entry.harpy_info = {};
-            entryCache[i] = entry;
             url = entry.request.url;
 
-            entry.harpy_info.source = (url.indexOf(domain) > -1 ? "internal" : "external");
+            urlDomain = url.split("://")[1].split("/")[0];
+            redirect = (Number(entry.response.status) === 301 || Number(entry.response.status) === 302);
+
+            if(!domain && !redirect) {
+                domain = urlDomain;
+            }
+
+            if(urlDomain === domain) {
+                source = "identical";
+            } else if(redirect || (domain && urlDomain.indexOf(domain.substr(domain.indexOf("."))) !== -1)) {
+                source = "internal";
+            } else {
+                source = "external";
+            }
+
+            entry.harpy_info = {};
+            entryCache[i] = entry;
+
+            entry.harpy_info.source = source;
             if(i>0) {
                 url = url.replace(har.log.entries[0].request.url,"");
             }
