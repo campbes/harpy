@@ -39,7 +39,7 @@
         <td colspan="4"></td>
         <td data-field="size">{{format log.pages.[0].harpy_info.size.download "size"}}</td>
         <td>
-            ({{format log.pages.[0].harpy_info.size.cache "size"}} from cache)
+            <span data-field="cache">({{format log.pages.[0].harpy_info.size.cache "size"}}</span> from cache)
             <span title="DOM: {{format log.pages.[0].harpy_info.time.onContentLoad "time"}}, Page: {{format log.pages.[0].harpy_info.time.onLoad "time"}}">{{format log.pages.[0].harpy_info.time.total "time"}}</span>
         </td>
     </tr>

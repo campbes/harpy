@@ -71,7 +71,7 @@ table.harpy td {
 table.harpy td.url {
     width: 100px;
 }
-table.harpy tr.total span {
+table.harpy tr.total span:nth-child(2) {
     float: right;
 }
 table.harpy .blocked {

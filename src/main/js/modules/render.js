@@ -88,7 +88,6 @@ Harpy.render = (function(){
 
 
     function drawPieCharts(el,primaryData,secondaryData,cfg) {
-
         var st, chart, chartArray = [];
         for(st in primaryData) {
             if(primaryData.hasOwnProperty(st)) {

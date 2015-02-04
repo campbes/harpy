@@ -72,10 +72,18 @@ Harpy.Viewer = function($harpy) {
                 var $rows = $table.find('tbody>tr').filter(':visible');
                 $tfootCells.filter('[data-field="requests"]').text($rows.length);
                 var size = 0;
+                var cached = 0;
                 $rows.each(function(i,row) {
-                    size += $(row).find('td[data-field="size"]').data('sort');
+                    var $row = $(row);
+                    var weight = $row.find('td[data-field="size"]').data('sort');
+                    if($row.find('td[data-field="status"][data-sort="(cache)"]').length > 0) {
+                        cached += weight;
+                    } else {
+                        size += weight;
+                    }
                 });
                 $tfootCells.filter('[data-field="size"]').text($harpy.util.format(size,"size"));
+                $tfootCells.find('span[data-field="cache"]').text($harpy.util.format(cached,"size"));
             }
 
             function drawCharts() {
@@ -96,7 +104,7 @@ Harpy.Viewer = function($harpy) {
                 }
             };
 
-            bhvr["#"+el+" table.harpy>thead>tr>input"] = {
+            bhvr["#"+el+" table.harpy>thead input"] = {
                 keyup : function(e,obj) {
                     var $obj = $(obj);
                     var filters = obj.value.split(',');
@@ -145,7 +153,7 @@ Harpy.Viewer = function($harpy) {
             setTimeout(this.resize,1);
 
             if($.tablesorter){
-                $(table).tablesorter({
+                $table.tablesorter({
                     sortList : [[0,0]]
                 });
             }
