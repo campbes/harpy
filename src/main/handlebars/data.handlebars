@@ -10,25 +10,34 @@
             <div class="loadMarker" data-dom="{{log.pages.[0].harpy_info.time.onContentLoad}}" data-page="{{log.pages.[0].harpy_info.time.onLoad}}"></div>
         </th>
     </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td><input data-field="method" type="text"/></td>
+        <td><input data-field="url" type="text"/></td>
+        <td><input data-field="status" type="text"/></td>
+        <td><input data-field="type" type="text"/></td>
+        <td><input data-field="size" type="text"/></td>
+        <td>&nbsp;</td>
+    </tr>
 </thead>
 <tbody>
 {{#each log.entries}}
     <tr data-id="{{@index}}" class="{{harpy_info.mimetype}} {{harpy_info.cache}} {{harpy_info.source}} {{harpy_info.error}}">
         <td>{{harpy_info.index}}</td>
-        <td>{{request.method}}</td>
-        <td class="url" title="{{harpy_info.url}}">{{trimmer harpy_info.url 30 true}}</td>
-        <td title="{{response.status}} {{response.statusText}}">{{response.status}}</td>
-        <td title="{{response.content.mimeType}}">{{harpy_info.mimetype}}</td>
-        <td>{{format harpy_info.size "size"}}</td>
+        <td data-field="method" data-sort="{{request.method}}">{{request.method}}</td>
+        <td data-field="url" data-sort="{{harpy_info.url}}" class="url" title="{{harpy_info.url}}">{{trimmer harpy_info.url 30 true}}</td>
+        <td data-field="status" data-sort="{{response.status}}" title="{{response.status}} {{response.statusText}}">{{response.status}}</td>
+        <td data-field="type" data-sort="{{harpy_info.mimetype}}" title="{{response.content.mimeType}}">{{harpy_info.mimetype}}</td>
+        <td data-field="size" data-sort="{{harpy_info.size}}">{{format harpy_info.size "size"}}</td>
         <td title="Blocked: {{timings.blocked}} ms, DNS: {{timings.dns}} ms, Connect: {{timings.connect}} ms, Send: {{timings.send}} ms, Wait: {{timings.wait}} ms, Receive: {{timings.receive}} ms">{{>timeline this}}</td>
     </tr>
 {{/each}}
 </tbody>
 <tfoot>
     <tr class="total">
-        <td>{{log.entries.length}}</td>
+        <td data-field="requests">{{log.entries.length}}</td>
         <td colspan="4"></td>
-        <td>{{format log.pages.[0].harpy_info.size.download "size"}}</td>
+        <td data-field="size">{{format log.pages.[0].harpy_info.size.download "size"}}</td>
         <td>
             ({{format log.pages.[0].harpy_info.size.cache "size"}} from cache)
             <span title="DOM: {{format log.pages.[0].harpy_info.time.onContentLoad "time"}}, Page: {{format log.pages.[0].harpy_info.time.onLoad "time"}}">{{format log.pages.[0].harpy_info.time.total "time"}}</span>

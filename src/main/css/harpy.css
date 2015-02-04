@@ -34,6 +34,15 @@ table.harpy tr.external {
 table.harpy tr.cache {
     color: #999;
 }
+table.harpy tr[data-filtered-method],
+table.harpy tr[data-filtered-url],
+table.harpy tr[data-filtered-status],
+table.harpy tr[data-filtered-type],
+table.harpy tr[data-filtered-size]
+{
+    display: none;
+}
+
 table.harpy th {
     width: 1px;
 }

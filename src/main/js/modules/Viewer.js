@@ -65,6 +65,19 @@ Harpy.Viewer = function($harpy) {
             el = elID;
             this.el = el;
 
+            var $table;
+
+            function recalculateTotals() {
+                var $tfootCells = $table.find('tfoot>tr>td');
+                var $rows = $table.find('tbody>tr').filter(':visible');
+                $tfootCells.filter('[data-field="requests"]').text($rows.length);
+                var size = 0;
+                $rows.each(function(i,row) {
+                    size += $(row).find('td[data-field="size"]').data('sort');
+                });
+                $tfootCells.filter('[data-field="size"]').text($harpy.util.format(size,"size"));
+            }
+
             function drawCharts() {
                 $harpy.render.drawPieCharts(el,stats,null,cfg);
             }
@@ -83,6 +96,37 @@ Harpy.Viewer = function($harpy) {
                 }
             };
 
+            bhvr["#"+el+" table.harpy>thead>tr>input"] = {
+                keyup : function(e,obj) {
+                    var $obj = $(obj);
+                    var filters = obj.value.split(',');
+                    var field = $obj.data('field');
+                    var value;
+
+                    $("#"+el).find("table.harpy>tbody>tr").each(function(i,row) {
+                        var $row = $(row);
+                        var visible = false;
+                        value = $row.find('>td[data-field="'+field+'"]').attr('data-sort');
+                        if(filters.length === 1 && filters[0] === "") {
+                            visible = true;
+                        } else {
+                            filters.forEach(function(filter) {
+                                if(filter.length > 0 && value.toUpperCase().indexOf(filter.toUpperCase()) > -1) {
+                                    visible = true;
+                                }
+                            });
+                        }
+                        if(visible) {
+                            $row.removeAttr('data-filtered-'+field);
+                        } else {
+                            $row.attr('data-filtered-'+field,true);
+                        }
+                    });
+
+                    recalculateTotals();
+                }
+            };
+
             viewer.behaviours = [bhvr,{window : { resize : function(){ viewer.resize();}}}];
 
             Exos.enable(viewer.behaviours);
@@ -97,6 +141,7 @@ Harpy.Viewer = function($harpy) {
             if(document.getElementById(el)) {
                 document.getElementById(el).appendChild(table);
             }
+            $table = $(table);
             setTimeout(this.resize,1);
 
             if($.tablesorter){
