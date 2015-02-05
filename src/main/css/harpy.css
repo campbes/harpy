@@ -127,6 +127,13 @@ table.harpy td.info dt {
     background: #EEE;
     font-weight: bold;
 }
+table.harpy input {
+    width: 100%;
+    box-sizing: border-box;
+}
+table.harpy thead td {
+    padding: 2px 0;
+}
 div.harpyChart {
     width: 24%;
     float: left;
