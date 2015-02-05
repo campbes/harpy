@@ -10,7 +10,7 @@ table.harpy div.loadMarker {
     border-left: 1px dashed #F63;
     border-right: 1px dashed #5cb85c;
     position: absolute;
-    margin-top: 10px;
+    margin-top: 35px;
 }
 table.harpy tr.total, table.harpy>thead>tr {
     background: #EEE;
