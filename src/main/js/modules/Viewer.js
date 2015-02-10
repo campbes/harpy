@@ -154,7 +154,11 @@ Harpy.Viewer = function($harpy) {
 
             if($.tablesorter){
                 $table.tablesorter({
-                    sortList : [[0,0]]
+                    sortList : [[0,0]],
+                    textExtraction: function(node) {
+                        var $node = $(node);
+                        return $node.attr('data-sort') || $node.text();
+                    }
                 });
             }
 
