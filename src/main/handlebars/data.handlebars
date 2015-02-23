@@ -37,7 +37,7 @@
         <td data-field="status" data-sort="{{response.status}}" title="{{response.status}} {{response.statusText}}">{{response.status}}</td>
         <td data-field="type" data-sort="{{harpy_info.mimetype}}" title="{{response.content.mimeType}}">{{harpy_info.mimetype}}</td>
         <td data-field="size" data-sort="{{harpy_info.size}}">{{format harpy_info.size "size"}}</td>
-        <td title="Blocked: {{timings.blocked}} ms, DNS: {{timings.dns}} ms, Connect: {{timings.connect}} ms, Send: {{timings.send}} ms, Wait: {{timings.wait}} ms, Receive: {{timings.receive}} ms">{{>timeline this}}</td>
+        <td data-start="{{harpy_info.startTime}}" data-end="{{harpy_info.endTime}}" data-time="{{time}}" title="Start: {{harpy_info.startTime}}ms, End: {{harpy_info.endTime}}ms ({{time}}ms)">{{>timeline this}}</td>
     </tr>
 {{/each}}
 </tbody>

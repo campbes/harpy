@@ -51,19 +51,23 @@ function program1(depth0,data) {
     + "\">";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.format || (depth0 && depth0.format)),stack1 ? stack1.call(depth0, ((stack1 = (depth0 && depth0.harpy_info)),stack1 == null || stack1 === false ? stack1 : stack1.size), "size", options) : helperMissing.call(depth0, "format", ((stack1 = (depth0 && depth0.harpy_info)),stack1 == null || stack1 === false ? stack1 : stack1.size), "size", options)))
-    + "</td>\r\n        <td title=\"Blocked: "
-    + escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.timings)),stack1 == null || stack1 === false ? stack1 : stack1.blocked)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + " ms, DNS: "
-    + escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.timings)),stack1 == null || stack1 === false ? stack1 : stack1.dns)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + " ms, Connect: "
-    + escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.timings)),stack1 == null || stack1 === false ? stack1 : stack1.connect)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + " ms, Send: "
-    + escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.timings)),stack1 == null || stack1 === false ? stack1 : stack1.send)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + " ms, Wait: "
-    + escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.timings)),stack1 == null || stack1 === false ? stack1 : stack1.wait)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + " ms, Receive: "
-    + escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.timings)),stack1 == null || stack1 === false ? stack1 : stack1.receive)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + " ms\">";
+    + "</td>\r\n        <td data-start=\""
+    + escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.harpy_info)),stack1 == null || stack1 === false ? stack1 : stack1.startTime)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + "\" data-end=\""
+    + escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.harpy_info)),stack1 == null || stack1 === false ? stack1 : stack1.endTime)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + "\" data-time=\"";
+  if (stack2 = helpers.time) { stack2 = stack2.call(depth0, {hash:{},data:data}); }
+  else { stack2 = (depth0 && depth0.time); stack2 = typeof stack2 === functionType ? stack2.call(depth0, {hash:{},data:data}) : stack2; }
+  buffer += escapeExpression(stack2)
+    + "\" title=\"Start: "
+    + escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.harpy_info)),stack1 == null || stack1 === false ? stack1 : stack1.startTime)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + "ms, End: "
+    + escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.harpy_info)),stack1 == null || stack1 === false ? stack1 : stack1.endTime)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + "ms (";
+  if (stack2 = helpers.time) { stack2 = stack2.call(depth0, {hash:{},data:data}); }
+  else { stack2 = (depth0 && depth0.time); stack2 = typeof stack2 === functionType ? stack2.call(depth0, {hash:{},data:data}) : stack2; }
+  buffer += escapeExpression(stack2)
+    + "ms)\">";
   stack2 = self.invokePartial(partials.timeline, 'timeline', depth0, helpers, partials, data);
   if(stack2 || stack2 === 0) { buffer += stack2; }
   buffer += "</td>\r\n    </tr>\r\n";
@@ -156,16 +160,28 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
     + escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.timings)),stack1 == null || stack1 === false ? stack1 : stack1.blocked)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
     + "\" data-start=\""
     + escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.harpy_info)),stack1 == null || stack1 === false ? stack1 : stack1.startTime)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "\"></div>\r\n<div class=\"dns\" data-time=\""
+    + "\" title=\"Blocked: "
+    + escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.timings)),stack1 == null || stack1 === false ? stack1 : stack1.blocked)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + "ms\"></div>\r\n<div class=\"dns\" data-time=\""
     + escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.timings)),stack1 == null || stack1 === false ? stack1 : stack1.dns)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "\"></div>\r\n<div class=\"connect\" data-time=\""
+    + "\" title=\"DNS: "
+    + escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.timings)),stack1 == null || stack1 === false ? stack1 : stack1.dns)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + "ms\"></div>\r\n<div class=\"connect\" data-time=\""
     + escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.timings)),stack1 == null || stack1 === false ? stack1 : stack1.connect)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "\"></div>\r\n<div class=\"send\" data-time=\""
+    + "\" title=\"Connect: "
+    + escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.timings)),stack1 == null || stack1 === false ? stack1 : stack1.connect)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + "ms\"></div>\r\n<div class=\"send\" data-time=\""
     + escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.timings)),stack1 == null || stack1 === false ? stack1 : stack1.send)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "\"></div>\r\n<div class=\"wait\" data-time=\""
+    + "\" title=\"Send: "
+    + escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.timings)),stack1 == null || stack1 === false ? stack1 : stack1.send)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + "ms\"></div>\r\n<div class=\"wait\" data-time=\""
     + escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.timings)),stack1 == null || stack1 === false ? stack1 : stack1.wait)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "\"></div>\r\n<div class=\"receive\" data-time=\""
+    + "\" title=\"Wait: "
+    + escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.timings)),stack1 == null || stack1 === false ? stack1 : stack1.wait)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + "ms\"></div>\r\n<div class=\"receive\" data-time=\""
     + escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.timings)),stack1 == null || stack1 === false ? stack1 : stack1.receive)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "\"></div>";
+    + "\" title=\"Receive: "
+    + escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.timings)),stack1 == null || stack1 === false ? stack1 : stack1.receive)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + "ms\"></div>";
   return buffer;
   });

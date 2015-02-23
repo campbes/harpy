@@ -125,6 +125,7 @@ Harpy.harpify = function($harpy) {
                 entry.harpy_info.size = entry.response.bodySize;
             }
             entry.harpy_info.startTime = new Date(entry.startedDateTime) - startTime;
+            entry.harpy_info.endTime = entry.harpy_info.startTime + entry.time;
         }
 
         var harpy_info = {};
