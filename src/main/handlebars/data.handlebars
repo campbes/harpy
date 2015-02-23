@@ -13,7 +13,15 @@
     <tr>
         <td>&nbsp;</td>
         <td><input data-field="method" type="text"/></td>
-        <td><input data-field="url" type="text"/></td>
+        <td>
+            <input data-field="url" type="text"/>
+            <select data-field="urlType">
+                <option selected>all</option>
+                <option>identical</option>
+                <option>internal</option>
+                <option>external</option>
+            </select>
+        </td>
         <td><input data-field="status" type="text"/></td>
         <td><input data-field="type" type="text"/></td>
         <td>&nbsp;</td>

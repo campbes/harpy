@@ -104,6 +104,23 @@ Harpy.Viewer = function($harpy) {
                 }
             };
 
+            bhvr.select = {
+                change : function(e,obj) {
+                    var val = obj.options[obj.selectedIndex].value;
+                    var field = $(obj).data('field');
+                    $("#"+el).find("table.harpy>tbody>tr").each(function(i,row) {
+                        var $row = $(row);
+                        var visible = (val === "all" || $row.hasClass(val));
+                        if(visible) {
+                            $row.removeAttr('data-filtered-'+field);
+                        } else {
+                            $row.attr('data-filtered-'+field,true);
+                        }
+                    });
+                    recalculateTotals();
+                }
+            };
+
             bhvr["#"+el+" table.harpy>thead input"] = {
                 keyup : function(e,obj) {
                     var $obj = $(obj);

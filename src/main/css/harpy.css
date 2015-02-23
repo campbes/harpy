@@ -36,6 +36,7 @@ table.harpy tr.cache {
 }
 table.harpy tr[data-filtered-method],
 table.harpy tr[data-filtered-url],
+table.harpy tr[data-filtered-urlType],
 table.harpy tr[data-filtered-status],
 table.harpy tr[data-filtered-type],
 table.harpy tr[data-filtered-size]
@@ -130,6 +131,15 @@ table.harpy td.info dt {
 table.harpy input {
     width: 100%;
     box-sizing: border-box;
+    float: left;
+}
+table.harpy input[data-field="url"] {
+    width: 80%;
+}
+table.harpy select {
+    width: 20%;
+    float: left;
+    padding: 1px;
 }
 table.harpy thead td {
     padding: 2px 0;
