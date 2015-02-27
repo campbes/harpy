@@ -63,7 +63,11 @@ Harpy.harpify = function($harpy) {
             entry = har.log.entries[i];
             url = entry.request.url;
 
-            urlDomain = url.split("://")[1].split("/")[0];
+            try {
+                urlDomain = url.split("://")[1].split("/")[0];
+            } catch (e) {
+                urlDomain = "";
+            }
             redirect = (Number(entry.response.status) === 301 || Number(entry.response.status) === 302);
 
             if(!domain && !redirect) {

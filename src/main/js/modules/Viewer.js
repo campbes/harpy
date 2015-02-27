@@ -104,11 +104,11 @@ Harpy.Viewer = function($harpy) {
                 }
             };
 
-            bhvr.select = {
+            bhvr["#"+el+" select"] = {
                 change : function(e,obj) {
                     var val = obj.options[obj.selectedIndex].value;
                     var field = $(obj).data('field');
-                    $("#"+el).find("table.harpy>tbody>tr").each(function(i,row) {
+                    $table.find("tbody>tr").each(function(i,row) {
                         var $row = $(row);
                         var visible = (val === "all" || $row.hasClass(val));
                         if(visible) {
@@ -128,7 +128,7 @@ Harpy.Viewer = function($harpy) {
                     var field = $obj.data('field');
                     var value;
 
-                    $("#"+el).find("table.harpy>tbody>tr").each(function(i,row) {
+                    $table.find("tbody>tr").each(function(i,row) {
                         var $row = $(row);
                         var visible = false;
                         value = $row.find('>td[data-field="'+field+'"]').attr('data-sort');
