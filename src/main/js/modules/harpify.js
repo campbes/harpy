@@ -119,6 +119,8 @@ Harpy.harpify = function($harpy) {
                 stats.requests.uncached += 1;
                 if(Number(entry.response.status) > 399) {
                     entry.harpy_info.error = 'error';
+                } else if(Number(entry.response.status) === 304) {
+                    entry.harpy_info.cache = "cache";
                 }
             }
             if(entry.cache.hasOwnProperty('afterRequest')) {
